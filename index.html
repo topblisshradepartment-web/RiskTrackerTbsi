@@ -1,24 +1,35 @@
 
-<h2 class="sr-only">People Risk Tracker with pattern analysis, department health, tenure risk, repeat flags, and trend charts</h2>
+<h2 class="sr-only">Top Bliss Solutions People Risk Tracker — branded HR concern tracking and analytics tool</h2>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-.app{padding:1.5rem 0;font-family:var(--font-sans)}
-.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem;overflow-x:auto}
-.tab{padding:8px 16px;font-size:13px;font-weight:500;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:all 0.15s}
-.tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary)}
-.tab:hover:not(.active){color:var(--color-text-primary)}
+:root{--tb-red:#C0392B;--tb-red-light:#FAECEB;--tb-red-mid:#E8534A;--tb-dark:#111111;--tb-surface:#1a1a1a}
+.app{font-family:var(--font-sans)}
+.header{background:#111111;padding:14px 20px;display:flex;align-items:center;gap:12px;border-radius:var(--border-radius-lg) var(--border-radius-lg) 0 0;margin-bottom:0}
+.header img{width:36px;height:36px;object-fit:contain}
+.header-text{display:flex;flex-direction:column}
+.header-title{font-size:13px;font-weight:500;color:#ffffff;letter-spacing:0.01em}
+.header-sub{font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px}
+.header-divider{width:1px;height:28px;background:rgba(255,255,255,0.12);margin:0 4px}
+.tabs{display:flex;gap:0;background:#1a1a1a;border-bottom:1px solid rgba(255,255,255,0.08);overflow-x:auto}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;gap:6px}
+.tab.active{color:#ffffff;border-bottom-color:#C0392B}
+.tab:hover:not(.active){color:rgba(255,255,255,0.75)}
+.body{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-top:none;border-radius:0 0 var(--border-radius-lg) var(--border-radius-lg);padding:1.25rem}
 .panel{display:none}.panel.active{display:block}
-.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
 .mc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px 16px}
 .mc-label{font-size:11px;color:var(--color-text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
 .mc-val{font-size:26px;font-weight:500;color:var(--color-text-primary)}
 .mc-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.mc-red .mc-val{color:#C0392B}
+.mc-amber .mc-val{color:#BA7517}
 .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
-.card-title{font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:12px}
+.card-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-title i{color:#C0392B}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 .bar-item{margin-bottom:10px}
 .bar-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:3px;display:flex;justify-content:space-between}
-.bar-track{height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.bar-track{height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;transition:width 0.4s ease}
 label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;font-weight:500}
 input,select,textarea{width:100%;font-family:var(--font-sans);font-size:14px}
@@ -26,412 +37,312 @@ textarea{resize:vertical;min-height:76px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .form-full{grid-column:1/-1}
 .risk-selector{display:flex;gap:8px}
-.risk-btn{flex:1;padding:8px;font-size:11px;font-weight:500;border-radius:var(--border-radius-md);cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all 0.15s}
+.risk-btn{flex:1;padding:8px 4px;font-size:11px;font-weight:500;border-radius:var(--border-radius-md);cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all 0.15s;text-align:center}
 .risk-btn.sel-low{background:#EAF3DE;color:#3B6D11;border-color:#639922}
 .risk-btn.sel-med{background:#FAEEDA;color:#854F0B;border-color:#BA7517}
 .risk-btn.sel-high{background:#FAECE7;color:#993C1D;border-color:#D85A30}
-.risk-btn.sel-crit{background:#FCEBEB;color:#A32D2D;border-color:#E24B4A}
-.submit-btn{width:100%;padding:10px;font-size:14px;font-weight:500;border-radius:var(--border-radius-md);background:var(--color-text-primary);color:var(--color-background-primary);border:none;cursor:pointer;margin-top:8px;transition:opacity 0.15s}
-.submit-btn:hover{opacity:0.85}
+.risk-btn.sel-crit{background:#FCEBEB;color:#A32D2D;border-color:#C0392B}
+.submit-btn{width:100%;padding:11px;font-size:14px;font-weight:500;border-radius:var(--border-radius-md);background:#C0392B;color:#ffffff;border:none;cursor:pointer;margin-top:8px;transition:opacity 0.15s;letter-spacing:0.01em}
+.submit-btn:hover{opacity:0.88}
 .badge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
 .b-low{background:#EAF3DE;color:#3B6D11}
 .b-med{background:#FAEEDA;color:#854F0B}
 .b-high{background:#FAECE7;color:#993C1D}
 .b-crit{background:#FCEBEB;color:#A32D2D}
 .b-info{background:var(--color-background-info);color:var(--color-text-info)}
+.b-red{background:#FAECEB;color:#7F1D1D}
 .entry-row{padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start}
 .entry-row:last-child{border-bottom:none}
 .entry-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
 .entry-meta{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
 .entry-notes{font-size:12px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5}
 .del-btn{background:none;border:none;color:var(--color-text-tertiary);cursor:pointer;font-size:14px;padding:2px}
-.del-btn:hover{color:#E24B4A}
+.del-btn:hover{color:#C0392B}
 .empty{text-align:center;padding:2rem;color:var(--color-text-secondary);font-size:13px}
 .filter-row{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
 .fsel{font-size:13px;padding:6px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer}
-.ai-btn{padding:8px 14px;font-size:12px;font-weight:500;border-radius:var(--border-radius-md);background:none;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.15s;margin-top:8px}
-.ai-btn:hover{border-color:var(--color-border-primary);color:var(--color-text-primary)}
+.ai-btn{padding:8px 14px;font-size:12px;font-weight:500;border-radius:var(--border-radius-md);background:none;border:0.5px solid #C0392B;color:#C0392B;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.15s;margin-top:8px}
+.ai-btn:hover{background:#FAECEB}
 .flag-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
 .flag-row:last-child{border-bottom:none}
-.health-bar{height:8px;border-radius:4px;background:var(--color-background-secondary);overflow:hidden;margin-top:4px}
-.pattern-chip{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;margin:3px}
-.insight-box{border-left:3px solid var(--color-border-warning);padding:10px 14px;background:var(--color-background-warning);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin-bottom:8px}
-.insight-box.danger{border-left-color:var(--color-border-danger);background:var(--color-background-danger)}
-.insight-box.success{border-left-color:var(--color-border-success);background:var(--color-background-success)}
-.insight-title{font-size:12px;font-weight:500;color:var(--color-text-warning);margin-bottom:2px}
-.insight-box.danger .insight-title{color:var(--color-text-danger)}
-.insight-box.success .insight-title{color:var(--color-text-success)}
+.insight-box{border-left:3px solid;padding:10px 14px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin-bottom:8px}
+.insight-box.warn{border-color:#BA7517;background:#FAEEDA}
+.insight-box.danger{border-color:#C0392B;background:#FAECEB}
+.insight-box.ok{border-color:#639922;background:#EAF3DE}
+.insight-box.info{border-color:var(--color-border-info);background:var(--color-background-info)}
+.insight-title{font-size:12px;font-weight:500;margin-bottom:2px}
+.insight-box.warn .insight-title{color:#854F0B}
+.insight-box.danger .insight-title{color:#7F1D1D}
+.insight-box.ok .insight-title{color:#3B6D11}
+.insight-box.info .insight-title{color:var(--color-text-info)}
 .insight-body{font-size:12px;color:var(--color-text-secondary)}
+.section-divider{height:0.5px;background:var(--color-border-tertiary);margin:1rem 0}
 </style>
 
 <div class="app">
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('log')"><i class="ti ti-plus" aria-hidden="true"></i> Log</button>
-  <button class="tab" onclick="switchTab('overview')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Overview</button>
-  <button class="tab" onclick="switchTab('patterns')"><i class="ti ti-chart-dots" aria-hidden="true"></i> Pattern analysis</button>
-  <button class="tab" onclick="switchTab('people')"><i class="ti ti-users" aria-hidden="true"></i> People watch</button>
-  <button class="tab" onclick="switchTab('depts')"><i class="ti ti-building" aria-hidden="true"></i> Dept health</button>
-  <button class="tab" onclick="switchTab('entries')"><i class="ti ti-list" aria-hidden="true"></i> All entries</button>
-</div>
+  <div class="header">
+    <img src="/api/placeholder/36/36" id="tb-logo" alt="Top Bliss Solutions logo" style="border-radius:4px"/>
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <span class="header-title">People Risk Tracker</span>
+      <span class="header-sub">Top Bliss Solutions Inc. · HR</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('log')"><i class="ti ti-plus" aria-hidden="true"></i>Log</button>
+    <button class="tab" onclick="switchTab('overview')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Overview</button>
+    <button class="tab" onclick="switchTab('patterns')"><i class="ti ti-chart-dots" aria-hidden="true"></i>Patterns</button>
+    <button class="tab" onclick="switchTab('people')"><i class="ti ti-users" aria-hidden="true"></i>People watch</button>
+    <button class="tab" onclick="switchTab('depts')"><i class="ti ti-building" aria-hidden="true"></i>Dept health</button>
+    <button class="tab" onclick="switchTab('entries')"><i class="ti ti-list" aria-hidden="true"></i>All entries</button>
+  </div>
 
-<!-- LOG -->
-<div class="panel active" id="panel-log">
-  <div class="form-grid">
-    <div><label>Employee name</label><input type="text" id="f-name" placeholder="Full name"/></div>
-    <div><label>Department</label>
-      <select id="f-dept">
-        <option value="">Select</option>
-        <option>Operations</option><option>Finance</option><option>HR</option><option>Sales</option>
-        <option>Marketing</option><option>R&D / Product</option><option>Logistics</option>
-        <option>Admin</option><option>IT</option><option>Executive</option>
-      </select>
-    </div>
-    <div><label>Position / Role</label><input type="text" id="f-role" placeholder="e.g. Team Lead"/></div>
-    <div><label>Tenure</label>
-      <select id="f-tenure">
-        <option value="">Select</option>
-        <option>Less than 6 months</option><option>6–12 months</option>
-        <option>1–2 years</option><option>2–5 years</option><option>5+ years</option>
-      </select>
-    </div>
-    <div><label>Concern category</label>
-      <select id="f-category">
-        <option value="">Select</option>
-        <option>Compensation & benefits</option><option>Career growth / promotion</option>
-        <option>Workload & burnout</option><option>Relationship with manager</option>
-        <option>Peer conflict</option><option>Work environment</option>
-        <option>Job fit / role clarity</option><option>Lack of recognition</option>
-        <option>Personal / life situation</option><option>Company direction / culture</option>
-        <option>Resignation signal</option><option>Other</option>
-      </select>
-    </div>
-    <div><label>How concern was raised</label>
-      <select id="f-source">
-        <option value="">Select</option>
-        <option>Walk-in / drop-in</option><option>1-on-1 check-in</option>
-        <option>Exit interview</option><option>Observed behavior</option>
-        <option>Reported by manager</option><option>Survey / form</option><option>Anonymous feedback</option>
-      </select>
-    </div>
-    <div class="form-full"><label>What was shared / observed</label>
-      <textarea id="f-notes" placeholder="Summarize what was said or observed. Include any context useful for follow-up."></textarea>
-    </div>
-    <div class="form-full"><label>Retention risk level</label>
-      <div class="risk-selector">
-        <button class="risk-btn" onclick="selectRisk('low',this)">Low — just venting</button>
-        <button class="risk-btn" onclick="selectRisk('med',this)">Medium — monitor</button>
-        <button class="risk-btn" onclick="selectRisk('high',this)">High — at risk</button>
-        <button class="risk-btn" onclick="selectRisk('crit',this)">Critical — likely to resign</button>
+  <div class="body">
+    <!-- LOG -->
+    <div class="panel active" id="panel-log">
+      <div class="form-grid">
+        <div><label>Employee name</label><input type="text" id="f-name" placeholder="Full name"/></div>
+        <div><label>Department</label>
+          <select id="f-dept"><option value="">Select</option><option>Operations</option><option>Finance</option><option>HR</option><option>Sales</option><option>Marketing</option><option>R&D / Product</option><option>Logistics</option><option>Admin</option><option>IT</option><option>Executive</option></select>
+        </div>
+        <div><label>Position / Role</label><input type="text" id="f-role" placeholder="e.g. Team Lead"/></div>
+        <div><label>Tenure</label>
+          <select id="f-tenure"><option value="">Select</option><option>Less than 6 months</option><option>6–12 months</option><option>1–2 years</option><option>2–5 years</option><option>5+ years</option></select>
+        </div>
+        <div><label>Concern category</label>
+          <select id="f-category"><option value="">Select</option><option>Compensation & benefits</option><option>Career growth / promotion</option><option>Workload & burnout</option><option>Relationship with manager</option><option>Peer conflict</option><option>Work environment</option><option>Job fit / role clarity</option><option>Lack of recognition</option><option>Personal / life situation</option><option>Company direction / culture</option><option>Resignation signal</option><option>Other</option></select>
+        </div>
+        <div><label>How concern was raised</label>
+          <select id="f-source"><option value="">Select</option><option>Walk-in / drop-in</option><option>1-on-1 check-in</option><option>Exit interview</option><option>Observed behavior</option><option>Reported by manager</option><option>Survey / form</option><option>Anonymous feedback</option></select>
+        </div>
+        <div class="form-full"><label>What was shared / observed</label>
+          <textarea id="f-notes" placeholder="Summarize what was said or observed. Include context useful for follow-up."></textarea>
+        </div>
+        <div class="form-full"><label>Retention risk level</label>
+          <div class="risk-selector">
+            <button class="risk-btn" onclick="selectRisk('low',this)">Low — venting</button>
+            <button class="risk-btn" onclick="selectRisk('med',this)">Medium — monitor</button>
+            <button class="risk-btn" onclick="selectRisk('high',this)">High — at risk</button>
+            <button class="risk-btn" onclick="selectRisk('crit',this)">Critical — resign likely</button>
+          </div>
+        </div>
+        <div><label>Action taken / planned</label><input type="text" id="f-action" placeholder="e.g. Referred to manager"/></div>
+        <div><label>Follow-up date</label><input type="date" id="f-followup"/></div>
       </div>
+      <button class="submit-btn" onclick="submitEntry()">Save concern entry</button>
     </div>
-    <div><label>Action taken / planned</label><input type="text" id="f-action" placeholder="e.g. Referred to manager"/></div>
-    <div><label>Follow-up date</label><input type="date" id="f-followup"/></div>
-  </div>
-  <button class="submit-btn" onclick="submitEntry()">Save concern entry</button>
-</div>
 
-<!-- OVERVIEW -->
-<div class="panel" id="panel-overview">
-  <div class="metrics-row">
-    <div class="mc"><div class="mc-label">Total logged</div><div class="mc-val" id="ov-total">0</div><div class="mc-sub">all concerns</div></div>
-    <div class="mc"><div class="mc-label">Flight risk</div><div class="mc-val" id="ov-risk" style="color:#D85A30">0</div><div class="mc-sub">high + critical</div></div>
-    <div class="mc"><div class="mc-label">Follow-ups due</div><div class="mc-val" id="ov-fu" style="color:#BA7517">0</div><div class="mc-sub">today or overdue</div></div>
-    <div class="mc"><div class="mc-label">Repeat concerns</div><div class="mc-val" id="ov-repeat">0</div><div class="mc-sub">logged 2+ times</div></div>
-  </div>
-  <div id="ov-insights" style="margin-bottom:1rem"></div>
-  <div class="grid2">
-    <div class="card"><div class="card-title">Risk distribution</div><div id="ov-risk-bars"></div></div>
-    <div class="card"><div class="card-title">Top concern themes</div><div id="ov-cat-bars"></div></div>
-  </div>
-  <div class="card"><div class="card-title">Monthly trend — concerns logged</div>
-    <div style="position:relative;width:100%;height:180px"><canvas id="trend-chart" role="img" aria-label="Monthly trend of concerns logged">Monthly concern trend data.</canvas></div>
-  </div>
-  <button class="ai-btn" onclick="sendAIAnalysis()"><i class="ti ti-brain" aria-hidden="true"></i> Get AI analysis of your data ↗</button>
-</div>
+    <!-- OVERVIEW -->
+    <div class="panel" id="panel-overview">
+      <div class="metrics-row">
+        <div class="mc"><div class="mc-label">Total logged</div><div class="mc-val" id="ov-total">0</div><div class="mc-sub">all concerns</div></div>
+        <div class="mc mc-red"><div class="mc-label">Flight risk</div><div class="mc-val" id="ov-risk">0</div><div class="mc-sub">high + critical</div></div>
+        <div class="mc mc-amber"><div class="mc-label">Follow-ups due</div><div class="mc-val" id="ov-fu">0</div><div class="mc-sub">today or overdue</div></div>
+        <div class="mc"><div class="mc-label">Repeat flags</div><div class="mc-val" id="ov-repeat">0</div><div class="mc-sub">logged 2+ times</div></div>
+      </div>
+      <div id="ov-insights" style="margin-bottom:1rem"></div>
+      <div class="grid2">
+        <div class="card"><div class="card-title"><i class="ti ti-shield-half" aria-hidden="true"></i>Risk distribution</div><div id="ov-risk-bars"></div></div>
+        <div class="card"><div class="card-title"><i class="ti ti-tag" aria-hidden="true"></i>Top concern themes</div><div id="ov-cat-bars"></div></div>
+      </div>
+      <div class="card"><div class="card-title"><i class="ti ti-trending-up" aria-hidden="true"></i>Monthly trend</div>
+        <div style="position:relative;width:100%;height:160px"><canvas id="trend-chart" role="img" aria-label="Monthly trend of concerns logged">Monthly concern data.</canvas></div>
+      </div>
+      <button class="ai-btn" onclick="sendAIAnalysis()"><i class="ti ti-brain" aria-hidden="true"></i> Get AI analysis ↗</button>
+    </div>
 
-<!-- PATTERNS -->
-<div class="panel" id="panel-patterns">
-  <div class="card"><div class="card-title">Concern category breakdown</div><div id="pat-cat-bars"></div></div>
-  <div class="grid2">
-    <div class="card"><div class="card-title">Risk by tenure group</div><div id="pat-tenure"></div></div>
-    <div class="card"><div class="card-title">How concerns surface</div><div id="pat-source"></div></div>
-  </div>
-  <div class="card"><div class="card-title">Category × risk heatmap</div><div id="pat-heatmap"></div></div>
-  <button class="ai-btn" onclick="sendPrompt('Look at the pattern analysis data in my People Risk Tracker — which concern categories and tenure groups should I prioritize? What does the pattern tell me about what\'s broken in the organization?')"><i class="ti ti-sparkles" aria-hidden="true"></i> Interpret patterns with AI ↗</button>
-</div>
+    <!-- PATTERNS -->
+    <div class="panel" id="panel-patterns">
+      <div class="card"><div class="card-title"><i class="ti ti-chart-bar" aria-hidden="true"></i>Concern categories</div><div id="pat-cat-bars"></div></div>
+      <div class="grid2">
+        <div class="card"><div class="card-title"><i class="ti ti-clock" aria-hidden="true"></i>Risk by tenure</div><div id="pat-tenure"></div></div>
+        <div class="card"><div class="card-title"><i class="ti ti-door-enter" aria-hidden="true"></i>How concerns surface</div><div id="pat-source"></div></div>
+      </div>
+      <div class="card"><div class="card-title"><i class="ti ti-table" aria-hidden="true"></i>Category × risk heatmap</div><div id="pat-heatmap"></div></div>
+      <button class="ai-btn" onclick="sendPrompt('Look at the pattern analysis from my TBSI People Risk Tracker — which concern categories and tenure groups should I prioritize? What does the pattern tell me about systemic issues?')"><i class="ti ti-sparkles" aria-hidden="true"></i> Interpret patterns ↗</button>
+    </div>
 
-<!-- PEOPLE WATCH -->
-<div class="panel" id="panel-people">
-  <div class="card" style="margin-bottom:1rem">
-    <div class="card-title">Repeat concern flags</div>
-    <div id="pw-repeat"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Critical & high risk — watchlist</div>
-    <div id="pw-watchlist"></div>
-  </div>
-</div>
+    <!-- PEOPLE WATCH -->
+    <div class="panel" id="panel-people">
+      <div class="card" style="margin-bottom:1rem"><div class="card-title"><i class="ti ti-repeat" aria-hidden="true"></i>Repeat concern flags</div><div id="pw-repeat"></div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i>Critical & high risk — watchlist</div><div id="pw-watchlist"></div></div>
+    </div>
 
-<!-- DEPT HEALTH -->
-<div class="panel" id="panel-depts">
-  <div class="card"><div class="card-title">Department health scores</div><p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:12px">Score = weighted risk index. Lower is healthier.</p><div id="dh-bars"></div></div>
-  <div class="card"><div class="card-title">Concerns per department — by category</div><div id="dh-table"></div></div>
-</div>
+    <!-- DEPT HEALTH -->
+    <div class="panel" id="panel-depts">
+      <div class="card"><div class="card-title"><i class="ti ti-activity" aria-hidden="true"></i>Department health scores</div>
+        <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:12px">Weighted risk index per dept — higher score = more at-risk</p>
+        <div id="dh-bars"></div>
+      </div>
+      <div class="card"><div class="card-title"><i class="ti ti-table" aria-hidden="true"></i>Concerns by dept × category</div><div id="dh-table"></div></div>
+    </div>
 
-<!-- ENTRIES -->
-<div class="panel" id="panel-entries">
-  <div class="filter-row">
-    <select class="fsel" id="fe-risk" onchange="renderEntries()"><option value="">All risk levels</option><option value="crit">Critical</option><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select>
-    <select class="fsel" id="fe-dept" onchange="renderEntries()"><option value="">All departments</option></select>
-    <select class="fsel" id="fe-cat" onchange="renderEntries()"><option value="">All categories</option></select>
+    <!-- ENTRIES -->
+    <div class="panel" id="panel-entries">
+      <div class="filter-row">
+        <select class="fsel" id="fe-risk" onchange="renderEntries()"><option value="">All risk levels</option><option value="crit">Critical</option><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select>
+        <select class="fsel" id="fe-dept" onchange="renderEntries()"><option value="">All departments</option></select>
+        <select class="fsel" id="fe-cat" onchange="renderEntries()"><option value="">All categories</option></select>
+      </div>
+      <div id="entries-list"><div class="empty">No entries yet.</div></div>
+    </div>
   </div>
-  <div class="card" id="entries-list"><div class="empty">No entries yet.</div></div>
-</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-let entries = [];
-try { entries = JSON.parse(localStorage.getItem('tbsi_concerns_v2') || '[]'); } catch(e){}
-let selRisk = '';
-let trendChart = null;
+let entries=[];
+try{entries=JSON.parse(localStorage.getItem('tbsi_concerns_v2')||'[]');}catch(e){}
+let selRisk='';let trendChart=null;
+function save(){try{localStorage.setItem('tbsi_concerns_v2',JSON.stringify(entries));}catch(e){}}
 
-function save(){ try{ localStorage.setItem('tbsi_concerns_v2', JSON.stringify(entries)); }catch(e){} }
+const logoImg=document.getElementById('tb-logo');
+logoImg.src='/mnt/user-data/uploads/topbliss_new_logo_may_2026.png';
+logoImg.onerror=()=>{logoImg.style.display='none';};
 
 function switchTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>{
-    const tabs=['log','overview','patterns','people','depts','entries'];
-    t.classList.toggle('active', tabs[i]===name);
-  });
+  const tabs=['log','overview','patterns','people','depts','entries'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
-  if(name==='overview') renderOverview();
-  if(name==='patterns') renderPatterns();
-  if(name==='people') renderPeople();
-  if(name==='depts') renderDepts();
-  if(name==='entries') renderEntries();
+  if(name==='overview')renderOverview();
+  if(name==='patterns')renderPatterns();
+  if(name==='people')renderPeople();
+  if(name==='depts')renderDepts();
+  if(name==='entries')renderEntries();
 }
 
-function selectRisk(lvl, btn){
-  selRisk = lvl;
+function selectRisk(lvl,btn){
+  selRisk=lvl;
   document.querySelectorAll('.risk-btn').forEach(b=>b.classList.remove('sel-low','sel-med','sel-high','sel-crit'));
   btn.classList.add('sel-'+lvl);
 }
 
 function submitEntry(){
-  const g = id => document.getElementById(id).value.trim();
-  const name=g('f-name'), dept=g('f-dept'), role=g('f-role'), tenure=g('f-tenure'),
-        cat=g('f-category'), src=g('f-source'), notes=g('f-notes'),
-        action=g('f-action'), fu=g('f-followup');
+  const g=id=>document.getElementById(id).value.trim();
+  const name=g('f-name'),dept=g('f-dept'),role=g('f-role'),tenure=g('f-tenure'),
+    cat=g('f-category'),src=g('f-source'),notes=g('f-notes'),action=g('f-action'),fu=g('f-followup');
   if(!name||!dept||!cat||!selRisk||!notes){alert('Fill in: name, department, category, notes, and risk level.');return;}
   entries.unshift({id:Date.now(),name,dept,role,tenure,category:cat,source:src,notes,action,followup:fu,risk:selRisk,date:new Date().toISOString().split('T')[0]});
   save();
   ['f-name','f-dept','f-role','f-tenure','f-category','f-source','f-notes','f-action','f-followup'].forEach(id=>document.getElementById(id).value='');
-  selRisk='';
-  document.querySelectorAll('.risk-btn').forEach(b=>b.classList.remove('sel-low','sel-med','sel-high','sel-crit'));
+  selRisk='';document.querySelectorAll('.risk-btn').forEach(b=>b.classList.remove('sel-low','sel-med','sel-high','sel-crit'));
   switchTab('overview');
 }
 
-function riskScore(r){ return {low:1,med:2,high:3,crit:4}[r]||0; }
-const RISK_COLORS = {low:'#639922',med:'#BA7517',high:'#D85A30',crit:'#E24B4A'};
-const RISK_LABELS = {low:'Low',med:'Medium',high:'High',crit:'Critical'};
-const BAR_COLORS = ['#378ADD','#D85A30','#BA7517','#639922','#7F77DD','#1D9E75','#888780'];
+function riskScore(r){return{low:1,med:2,high:3,crit:4}[r]||0;}
+const RL={low:'Low',med:'Medium',high:'High',crit:'Critical'};
+const RC={low:'#639922',med:'#BA7517',high:'#D85A30',crit:'#C0392B'};
+const BC=['#C0392B','#D85A30','#BA7517','#639922','#7F77DD','#1D9E75','#888780'];
 
-function makeBars(data, maxVal, colors, container){
-  if(!data.length){container.innerHTML='<div class="empty" style="padding:1rem 0">No data yet</div>';return;}
-  container.innerHTML = data.map((d,i)=>`
-    <div class="bar-item">
-      <div class="bar-label"><span style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d[0]}</span><span>${d[1]}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/maxVal*100)}%;background:${colors[i%colors.length]}"></div></div>
-    </div>`).join('');
+function makeBars(data,maxVal,colors,el){
+  if(!data.length){el.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';return;}
+  el.innerHTML=data.map((d,i)=>`<div class="bar-item"><div class="bar-label"><span style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d[0]}</span><span>${d[1]}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/maxVal*100)}%;background:${colors[i%colors.length]}"></div></div></div>`).join('');
 }
 
 function renderOverview(){
-  const total = entries.length;
-  document.getElementById('ov-total').textContent = total;
-  const highRisk = entries.filter(e=>e.risk==='high'||e.risk==='crit').length;
-  document.getElementById('ov-risk').textContent = highRisk;
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('ov-fu').textContent = entries.filter(e=>e.followup&&e.followup<=today).length;
-  const nameCounts = {};
-  entries.forEach(e=>{ nameCounts[e.name]=(nameCounts[e.name]||0)+1; });
-  document.getElementById('ov-repeat').textContent = Object.values(nameCounts).filter(v=>v>=2).length;
+  const total=entries.length;
+  document.getElementById('ov-total').textContent=total;
+  document.getElementById('ov-risk').textContent=entries.filter(e=>e.risk==='high'||e.risk==='crit').length;
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('ov-fu').textContent=entries.filter(e=>e.followup&&e.followup<=today).length;
+  const nc={};entries.forEach(e=>{nc[e.name]=(nc[e.name]||0)+1;});
+  document.getElementById('ov-repeat').textContent=Object.values(nc).filter(v=>v>=2).length;
 
-  const insights = [];
-  if(total===0){ insights.push({type:'',title:'No data yet',body:'Start logging concerns to see insights here.'}); }
-  else {
-    const critPct = Math.round(entries.filter(e=>e.risk==='crit').length/total*100);
-    if(critPct>=20) insights.push({type:'danger',title:`${critPct}% of concerns are critical risk`,body:'More than 1 in 5 logged concerns are at resignation-level risk. Immediate intervention needed.'});
-    const catCount={};entries.forEach(e=>{catCount[e.category]=(catCount[e.category]||0)+1;});
-    const topCat=Object.entries(catCount).sort((a,b)=>b[1]-a[1])[0];
-    if(topCat&&topCat[1]>=2) insights.push({type:'warning',title:`"${topCat[0]}" is your top repeating concern`,body:`Logged ${topCat[1]} times. This is a systemic issue, not individual — it needs a structural fix.`});
-    const deptRisk={};
-    entries.forEach(e=>{ if(!deptRisk[e.dept]) deptRisk[e.dept]={total:0,score:0}; deptRisk[e.dept].total++; deptRisk[e.dept].score+=riskScore(e.risk); });
-    const riskiest=Object.entries(deptRisk).sort((a,b)=>(b[1].score/b[1].total)-(a[1].score/a[1].total))[0];
-    if(riskiest) insights.push({type:'warning',title:`${riskiest[0]} has the highest average risk score`,body:`Average risk weight of ${(riskiest[1].score/riskiest[1].total).toFixed(1)}/4. Check manager and team dynamics here first.`});
-    const repeatPeople=Object.entries(nameCounts).filter(v=>v[1]>=3);
-    if(repeatPeople.length) insights.push({type:'danger',title:`${repeatPeople.length} employee(s) flagged 3+ times`,body:`${repeatPeople.map(v=>v[0]).join(', ')} — recurring signals suggest unresolved root issues.`});
-    if(insights.length===0) insights.push({type:'success',title:'No major patterns detected yet',body:'Keep logging consistently — patterns usually emerge after 5+ entries.'});
+  const insights=[];
+  if(!total){insights.push({type:'info',title:'No data yet',body:'Start logging concerns to see insights here.'});}
+  else{
+    const critPct=Math.round(entries.filter(e=>e.risk==='crit').length/total*100);
+    if(critPct>=20)insights.push({type:'danger',title:`${critPct}% of concerns are critical`,body:'More than 1 in 5 concerns are resignation-level. Immediate intervention needed.'});
+    const cc={};entries.forEach(e=>{cc[e.category]=(cc[e.category]||0)+1;});
+    const topCat=Object.entries(cc).sort((a,b)=>b[1]-a[1])[0];
+    if(topCat&&topCat[1]>=2)insights.push({type:'warn',title:`"${topCat[0]}" repeating across entries`,body:`Flagged ${topCat[1]} times — this is systemic, not individual. Needs a structural fix.`});
+    const dr={};entries.forEach(e=>{if(!dr[e.dept])dr[e.dept]={t:0,s:0};dr[e.dept].t++;dr[e.dept].s+=riskScore(e.risk);});
+    const rk=Object.entries(dr).sort((a,b)=>(b[1].s/b[1].t)-(a[1].s/a[1].t))[0];
+    if(rk)insights.push({type:'warn',title:`${rk[0]} has highest avg risk score`,body:`Risk weight: ${(rk[1].s/rk[1].t).toFixed(1)}/4. Review manager relationships and team dynamics here first.`});
+    const rp=Object.entries(nc).filter(v=>v[1]>=3);
+    if(rp.length)insights.push({type:'danger',title:`${rp.length} employee(s) flagged 3+ times`,body:`${rp.map(v=>v[0]).join(', ')} — recurring signals suggest unresolved root issues.`});
+    if(!insights.length)insights.push({type:'ok',title:'No major patterns detected yet',body:'Keep logging — patterns usually emerge after 5+ entries.'});
   }
-  document.getElementById('ov-insights').innerHTML = insights.map(i=>`
-    <div class="insight-box ${i.type}"><div class="insight-title">${i.title}</div><div class="insight-body">${i.body}</div></div>`).join('');
+  document.getElementById('ov-insights').innerHTML=insights.map(i=>`<div class="insight-box ${i.type}"><div class="insight-title">${i.title}</div><div class="insight-body">${i.body}</div></div>`).join('');
 
-  const riskCount={crit:0,high:0,med:0,low:0};
-  entries.forEach(e=>{if(riskCount[e.risk]!==undefined)riskCount[e.risk]++;});
-  const riskData=Object.entries(riskCount).map(([k,v])=>[RISK_LABELS[k],v]);
-  const maxRisk=Math.max(...riskData.map(d=>d[1]),1);
-  document.getElementById('ov-risk-bars').innerHTML = riskData.map((d,i)=>`
-    <div class="bar-item">
-      <div class="bar-label"><span>${d[0]}</span><span>${d[1]}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/maxRisk*100)}%;background:${Object.values(RISK_COLORS)[i]}"></div></div>
-    </div>`).join('');
+  const rCount={crit:0,high:0,med:0,low:0};entries.forEach(e=>{if(rCount[e.risk]!==undefined)rCount[e.risk]++;});
+  const rData=Object.entries(rCount).map(([k,v])=>[RL[k],v]);
+  document.getElementById('ov-risk-bars').innerHTML=rData.map((d,i)=>`<div class="bar-item"><div class="bar-label"><span>${d[0]}</span><span>${d[1]}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/Math.max(...rData.map(x=>x[1]),1)*100)}%;background:${Object.values(RC)[i]}"></div></div></div>`).join('');
 
-  const catCount={};entries.forEach(e=>{catCount[e.category]=(catCount[e.category]||0)+1;});
-  const cats=Object.entries(catCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  makeBars(cats, cats[0]?cats[0][1]:1, BAR_COLORS, document.getElementById('ov-cat-bars'));
-
-  renderTrendChart();
+  const catC={};entries.forEach(e=>{catC[e.category]=(catC[e.category]||0)+1;});
+  const cats=Object.entries(catC).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  makeBars(cats,cats[0]?cats[0][1]:1,BC,document.getElementById('ov-cat-bars'));
+  renderTrend();
 }
 
-function renderTrendChart(){
-  const monthMap={};
-  entries.forEach(e=>{
-    const m=e.date.substring(0,7);
-    monthMap[m]=(monthMap[m]||0)+1;
-  });
-  const months=Object.keys(monthMap).sort().slice(-6);
-  const data=months.map(m=>monthMap[m]||0);
+function renderTrend(){
+  const mm={};entries.forEach(e=>{const m=e.date.substring(0,7);mm[m]=(mm[m]||0)+1;});
+  const months=Object.keys(mm).sort().slice(-6);
+  const data=months.map(m=>mm[m]||0);
   const labels=months.map(m=>{const d=new Date(m+'-01');return d.toLocaleString('default',{month:'short',year:'2-digit'});});
-  const ctx=document.getElementById('trend-chart');
-  if(!ctx) return;
-  if(trendChart){trendChart.destroy();}
-  trendChart=new Chart(ctx,{
-    type:'line',
-    data:{labels:labels.length?labels:['No data'],datasets:[{label:'Concerns',data:data.length?data:[0],borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.08)',borderWidth:2,pointBackgroundColor:'#378ADD',pointRadius:4,tension:0.3,fill:true}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#888'},grid:{color:'rgba(136,135,128,0.15)'}},x:{ticks:{color:'#888'},grid:{display:false}}}}
-  });
+  const ctx=document.getElementById('trend-chart');if(!ctx)return;
+  if(trendChart)trendChart.destroy();
+  trendChart=new Chart(ctx,{type:'line',data:{labels:labels.length?labels:['No data'],datasets:[{label:'Concerns',data:data.length?data:[0],borderColor:'#C0392B',backgroundColor:'rgba(192,57,43,0.07)',borderWidth:2,pointBackgroundColor:'#C0392B',pointRadius:4,tension:0.35,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#888'},grid:{color:'rgba(136,135,128,0.12)'}},x:{ticks:{color:'#888'},grid:{display:false}}}}});
 }
 
 function renderPatterns(){
-  const catCount={};entries.forEach(e=>{catCount[e.category]=(catCount[e.category]||0)+1;});
-  const cats=Object.entries(catCount).sort((a,b)=>b[1]-a[1]);
-  makeBars(cats,cats[0]?cats[0][1]:1,BAR_COLORS,document.getElementById('pat-cat-bars'));
+  const catC={};entries.forEach(e=>{catC[e.category]=(catC[e.category]||0)+1;});
+  const cats=Object.entries(catC).sort((a,b)=>b[1]-a[1]);
+  makeBars(cats,cats[0]?cats[0][1]:1,BC,document.getElementById('pat-cat-bars'));
 
-  const tenureRisk={};
-  entries.forEach(e=>{
-    const t=e.tenure||'Unknown';
-    if(!tenureRisk[t]){tenureRisk[t]={total:0,score:0};}
-    tenureRisk[t].total++;tenureRisk[t].score+=riskScore(e.risk);
-  });
-  const tenureData=Object.entries(tenureRisk).map(([k,v])=>[k,parseFloat((v.score/v.total).toFixed(1))]).sort((a,b)=>b[1]-a[1]);
-  const maxT=tenureData[0]?tenureData[0][1]:1;
-  const tenureEl=document.getElementById('pat-tenure');
-  if(!tenureData.length){tenureEl.innerHTML='<div class="empty" style="padding:1rem 0">No data</div>';}
-  else {
-    tenureEl.innerHTML=tenureData.map((d,i)=>`
-      <div class="bar-item">
-        <div class="bar-label"><span style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d[0]}</span><span>avg ${d[1]}/4</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/4*100)}%;background:${d[1]>=3?'#E24B4A':d[1]>=2?'#D85A30':'#639922'}"></div></div>
-      </div>`).join('');
-  }
+  const tenR={};entries.forEach(e=>{const t=e.tenure||'Unknown';if(!tenR[t])tenR[t]={total:0,score:0};tenR[t].total++;tenR[t].score+=riskScore(e.risk);});
+  const tenD=Object.entries(tenR).map(([k,v])=>[k,parseFloat((v.score/v.total).toFixed(1))]).sort((a,b)=>b[1]-a[1]);
+  const tEl=document.getElementById('pat-tenure');
+  tEl.innerHTML=tenD.length?tenD.map(d=>`<div class="bar-item"><div class="bar-label"><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d[0]}</span><span>avg ${d[1]}/4</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/4*100)}%;background:${d[1]>=3?'#C0392B':d[1]>=2?'#D85A30':'#639922'}"></div></div></div>`).join(''):'<div class="empty" style="padding:0.75rem 0">No data</div>';
 
-  const srcCount={};entries.forEach(e=>{const s=e.source||'Unknown';srcCount[s]=(srcCount[s]||0)+1;});
-  const srcData=Object.entries(srcCount).sort((a,b)=>b[1]-a[1]);
-  makeBars(srcData,srcData[0]?srcData[0][1]:1,BAR_COLORS,document.getElementById('pat-source'));
+  const srcC={};entries.forEach(e=>{const s=e.source||'Unknown';srcC[s]=(srcC[s]||0)+1;});
+  makeBars(Object.entries(srcC).sort((a,b)=>b[1]-a[1]),1,BC,document.getElementById('pat-source'));
+  const srcData=Object.entries(srcC).sort((a,b)=>b[1]-a[1]);
+  makeBars(srcData,srcData[0]?srcData[0][1]:1,BC,document.getElementById('pat-source'));
 
-  const heatEl=document.getElementById('pat-heatmap');
-  const cats2=Object.keys(catCount).slice(0,6);
+  const cats2=Object.keys(catC).slice(0,5);
   const risks=['crit','high','med','low'];
-  if(!cats2.length){heatEl.innerHTML='<div class="empty" style="padding:1rem 0">No data yet</div>';return;}
-  const heatData={};
-  entries.forEach(e=>{
-    const key=e.category+'__'+e.risk;
-    heatData[key]=(heatData[key]||0)+1;
-  });
-  const maxH=Math.max(...Object.values(heatData),1);
-  const riskColors2={crit:'#E24B4A',high:'#D85A30',med:'#BA7517',low:'#639922'};
-  heatEl.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">
-    <tr><td style="width:160px;padding:4px;color:var(--color-text-secondary)"></td>${risks.map(r=>`<th style="padding:6px 4px;text-align:center;color:var(--color-text-secondary);font-weight:500">${RISK_LABELS[r]}</th>`).join('')}</tr>
-    ${cats2.map(cat=>`<tr><td style="padding:6px 4px;color:var(--color-text-secondary);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${cat}">${cat}</td>${risks.map(r=>{
-      const v=heatData[cat+'__'+r]||0;
-      const alpha=v>0?0.15+0.7*(v/maxH):0;
-      return `<td style="padding:4px;text-align:center"><div style="background:${riskColors2[r]};opacity:${alpha.toFixed(2)};border-radius:4px;height:28px;display:flex;align-items:center;justify-content:center;min-width:28px"><span style="font-size:12px;font-weight:500;color:var(--color-text-primary);opacity:${v>0?1:0}">${v||''}</span></div></td>`;
-    }).join('')}</tr>`).join('')}
+  const hEl=document.getElementById('pat-heatmap');
+  if(!cats2.length){hEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';return;}
+  const hD={};entries.forEach(e=>{const k=e.category+'__'+e.risk;hD[k]=(hD[k]||0)+1;});
+  const maxH=Math.max(...Object.values(hD),1);
+  hEl.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">
+    <tr><td style="width:150px;padding:4px;color:var(--color-text-secondary)"></td>${risks.map(r=>`<th style="padding:6px 4px;text-align:center;color:var(--color-text-secondary);font-weight:500">${RL[r]}</th>`).join('')}</tr>
+    ${cats2.map(cat=>`<tr><td style="padding:6px 4px;color:var(--color-text-secondary);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${cat}">${cat}</td>${risks.map(r=>{const v=hD[cat+'__'+r]||0;const alpha=v>0?0.15+0.7*(v/maxH):0;return `<td style="padding:4px;text-align:center"><div style="background:${RC[r]};opacity:${alpha.toFixed(2)};border-radius:4px;height:26px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:500;color:var(--color-text-primary);opacity:${v>0?1:0}">${v||''}</span></div></td>`;}).join('')}</tr>`).join('')}
   </table></div>`;
 }
 
 function renderPeople(){
-  const nameCounts={};const nameRisk={};const nameEntries={};
+  const nc={};const nr={};const ne={};
   entries.forEach(e=>{
-    nameCounts[e.name]=(nameCounts[e.name]||0)+1;
-    if(!nameRisk[e.name]||riskScore(e.risk)>riskScore(nameRisk[e.name])) nameRisk[e.name]=e.risk;
-    if(!nameEntries[e.name]) nameEntries[e.name]=[];
-    nameEntries[e.name].push(e);
+    nc[e.name]=(nc[e.name]||0)+1;
+    if(!nr[e.name]||riskScore(e.risk)>riskScore(nr[e.name]))nr[e.name]=e.risk;
+    if(!ne[e.name])ne[e.name]=[];ne[e.name].push(e);
   });
-  const repeats=Object.entries(nameCounts).filter(([,v])=>v>=2).sort((a,b)=>b[1]-a[1]);
-  const repeatEl=document.getElementById('pw-repeat');
-  if(!repeats.length){repeatEl.innerHTML='<div class="empty" style="padding:0.5rem 0">No repeat concerns yet. This is good.</div>';}
-  else {
-    repeatEl.innerHTML=repeats.map(([name,count])=>{
-      const last=nameEntries[name][0];
-      return `<div class="flag-row">
-        <div><div class="entry-name">${name} <span class="badge b-info">${count}x logged</span></div>
-          <div class="entry-meta">${last.dept}${last.role?' · '+last.role:''}</div>
-          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px">Latest: ${last.category} — ${last.date}</div>
-        </div>
-        <span class="badge b-${nameRisk[name]}">${RISK_LABELS[nameRisk[name]]}</span>
-      </div>`;}).join('');
-  }
+  const repeats=Object.entries(nc).filter(([,v])=>v>=2).sort((a,b)=>b[1]-a[1]);
+  const rEl=document.getElementById('pw-repeat');
+  rEl.innerHTML=repeats.length?repeats.map(([name,count])=>{const last=ne[name][0];return `<div class="flag-row"><div><div class="entry-name">${name} <span class="badge b-red">${count}x logged</span></div><div class="entry-meta">${last.dept}${last.role?' · '+last.role:''}</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px">Latest: ${last.category} — ${last.date}</div></div><span class="badge b-${nr[name]}">${RL[nr[name]]}</span></div>`;}).join(''):'<div class="empty" style="padding:0.75rem 0">No repeat concerns yet.</div>';
 
-  const watchlist=entries.filter(e=>e.risk==='high'||e.risk==='crit').sort((a,b)=>riskScore(b.risk)-riskScore(a.risk));
-  const watchEl=document.getElementById('pw-watchlist');
-  if(!watchlist.length){watchEl.innerHTML='<div class="empty" style="padding:0.5rem 0">No high/critical risk entries yet.</div>';}
-  else {
-    watchEl.innerHTML=watchlist.map(e=>`
-      <div class="flag-row">
-        <div><div class="entry-name">${e.name}</div>
-          <div class="entry-meta">${e.dept}${e.role?' · '+e.role:''}${e.tenure?' · '+e.tenure:''}</div>
-          <div class="entry-notes">${e.category} — ${e.notes.substring(0,80)}${e.notes.length>80?'...':''}</div>
-          ${e.followup?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px"><i class="ti ti-calendar" aria-hidden="true" style="font-size:11px"></i> Follow-up: ${e.followup}</div>`:''}
-        </div>
-        <span class="badge b-${e.risk}">${RISK_LABELS[e.risk]}</span>
-      </div>`).join('');
-  }
+  const wl=entries.filter(e=>e.risk==='high'||e.risk==='crit').sort((a,b)=>riskScore(b.risk)-riskScore(a.risk));
+  const wEl=document.getElementById('pw-watchlist');
+  wEl.innerHTML=wl.length?wl.map(e=>`<div class="flag-row"><div><div class="entry-name">${e.name}</div><div class="entry-meta">${e.dept}${e.role?' · '+e.role:''}${e.tenure?' · '+e.tenure:''}</div><div class="entry-notes">${e.category} — ${e.notes.substring(0,80)}${e.notes.length>80?'...':''}</div>${e.followup?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px"><i class="ti ti-calendar" style="font-size:11px" aria-hidden="true"></i> Follow-up: ${e.followup}</div>`:''}</div><span class="badge b-${e.risk}">${RL[e.risk]}</span></div>`).join(''):'<div class="empty" style="padding:0.75rem 0">No high/critical entries yet.</div>';
 }
 
 function renderDepts(){
-  const deptData={};
-  entries.forEach(e=>{
-    if(!deptData[e.dept]) deptData[e.dept]={total:0,score:0,cats:{}};
-    deptData[e.dept].total++;
-    deptData[e.dept].score+=riskScore(e.risk);
-    deptData[e.dept].cats[e.category]=(deptData[e.dept].cats[e.category]||0)+1;
-  });
-  const depts=Object.entries(deptData).sort((a,b)=>(b[1].score/b[1].total)-(a[1].score/a[1].total));
+  const dd={};entries.forEach(e=>{if(!dd[e.dept])dd[e.dept]={total:0,score:0,cats:{}};dd[e.dept].total++;dd[e.dept].score+=riskScore(e.risk);dd[e.dept].cats[e.category]=(dd[e.dept].cats[e.category]||0)+1;});
+  const depts=Object.entries(dd).sort((a,b)=>(b[1].score/b[1].total)-(a[1].score/a[1].total));
   const dhEl=document.getElementById('dh-bars');
-  if(!depts.length){dhEl.innerHTML='<div class="empty" style="padding:1rem 0">No data yet</div>';return;}
-  dhEl.innerHTML=depts.map(([dept,d])=>{
-    const avg=d.score/d.total;
-    const pct=Math.round(avg/4*100);
-    const color=avg>=3?'#E24B4A':avg>=2?'#D85A30':avg>=1.5?'#BA7517':'#639922';
-    return `<div class="bar-item">
-      <div class="bar-label"><span>${dept}</span><span style="color:${color}">${avg.toFixed(1)}/4 · ${d.total} concern${d.total>1?'s':''}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
-    </div>`;}).join('');
+  dhEl.innerHTML=depts.length?depts.map(([dept,d])=>{const avg=d.score/d.total;const pct=Math.round(avg/4*100);const color=avg>=3?'#C0392B':avg>=2?'#D85A30':avg>=1.5?'#BA7517':'#639922';return `<div class="bar-item"><div class="bar-label"><span>${dept}</span><span style="color:${color}">${avg.toFixed(1)}/4 · ${d.total} concern${d.total>1?'s':''}</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;}).join(''):'<div class="empty" style="padding:0.75rem 0">No data yet</div>';
 
   const allCats=[...new Set(entries.map(e=>e.category))].slice(0,5);
-  const tblEl=document.getElementById('dh-table');
-  if(!allCats.length){tblEl.innerHTML='';return;}
-  tblEl.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:auto">
-    <tr><th style="text-align:left;padding:6px 4px;color:var(--color-text-secondary);font-weight:500;min-width:90px">Dept</th>${allCats.map(c=>`<th style="padding:6px 4px;color:var(--color-text-secondary);font-weight:500;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c}">${c.split(' ').slice(0,2).join(' ')}</th>`).join('')}</tr>
-    ${depts.map(([dept,d])=>`<tr style="border-top:0.5px solid var(--color-border-tertiary)"><td style="padding:6px 4px;font-size:12px;color:var(--color-text-primary)">${dept}</td>${allCats.map(c=>{const v=d.cats[c]||0;return `<td style="text-align:center;padding:6px 4px"><span style="color:${v>0?'var(--color-text-primary)':'var(--color-text-tertiary)'};">${v>0?v:'—'}</span></td>`;}).join('')}</tr>`).join('')}
-  </table></div>`;
+  const tEl=document.getElementById('dh-table');
+  if(!allCats.length){tEl.innerHTML='';return;}
+  tEl.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:auto"><tr><th style="text-align:left;padding:6px 4px;color:var(--color-text-secondary);font-weight:500;min-width:90px">Dept</th>${allCats.map(c=>`<th style="padding:6px 4px;color:var(--color-text-secondary);font-weight:500;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c}">${c.split(' ').slice(0,2).join(' ')}</th>`).join('')}</tr>${depts.map(([dept,d])=>`<tr style="border-top:0.5px solid var(--color-border-tertiary)"><td style="padding:6px 4px;font-size:12px;color:var(--color-text-primary)">${dept}</td>${allCats.map(c=>{const v=d.cats[c]||0;return `<td style="text-align:center;padding:6px 4px"><span style="color:${v>0?'var(--color-text-primary)':'var(--color-text-tertiary)'}">${v>0?v:'—'}</span></td>`;}).join('')}</tr>`).join('')}</table></div>`;
 }
 
 function renderEntries(){
-  const rF=document.getElementById('fe-risk').value;
-  const dF=document.getElementById('fe-dept').value;
-  const cF=document.getElementById('fe-cat').value;
+  const rF=document.getElementById('fe-risk').value,dF=document.getElementById('fe-dept').value,cF=document.getElementById('fe-cat').value;
   const depts=[...new Set(entries.map(e=>e.dept))].filter(Boolean);
   const cats=[...new Set(entries.map(e=>e.category))].filter(Boolean);
   const dSel=document.getElementById('fe-dept');const curD=dSel.value;
@@ -439,44 +350,17 @@ function renderEntries(){
   const cSel=document.getElementById('fe-cat');const curC=cSel.value;
   cSel.innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option value="${c}"${c===curC?' selected':''}>${c}</option>`).join('');
   const filtered=entries.filter(e=>(!rF||e.risk===rF)&&(!dF||e.dept===dF)&&(!cF||e.category===cF));
-  const el=document.getElementById('entries-list');
-  el.innerHTML=filtered.length?filtered.map(e=>`
-    <div class="entry-row">
-      <span class="badge b-${e.risk}">${RISK_LABELS[e.risk]}</span>
-      <div>
-        <div class="entry-name">${e.name} <span class="badge b-info" style="font-size:10px">${e.dept}</span></div>
-        <div class="entry-meta">${e.role||''}${e.role&&e.tenure?' · ':''}${e.tenure||''}${(e.role||e.tenure)?' · ':''}${e.category}</div>
-        <div class="entry-notes">${e.notes}</div>
-        ${e.action?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px"><i class="ti ti-arrow-right" aria-hidden="true" style="font-size:11px"></i> ${e.action}</div>`:''}
-        ${e.followup?`<div style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-calendar" aria-hidden="true" style="font-size:11px"></i> Follow-up: ${e.followup}</div>`:''}
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        <span style="font-size:11px;color:var(--color-text-tertiary)">${e.date}</span>
-        <button class="del-btn" onclick="deleteEntry(${e.id})" aria-label="Delete"><i class="ti ti-trash" aria-hidden="true"></i></button>
-      </div>
-    </div>`).join(''):'<div class="empty">No entries match.</div>';
+  document.getElementById('entries-list').innerHTML=filtered.length?`<div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:0 1rem">`+filtered.map(e=>`<div class="entry-row"><span class="badge b-${e.risk}">${RL[e.risk]}</span><div><div class="entry-name">${e.name} <span class="badge b-info" style="font-size:10px">${e.dept}</span></div><div class="entry-meta">${e.role||''}${e.role&&e.tenure?' · ':''}${e.tenure||''}${(e.role||e.tenure)?' · ':''}${e.category}</div><div class="entry-notes">${e.notes}</div>${e.action?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px"><i class="ti ti-arrow-right" style="font-size:11px" aria-hidden="true"></i> ${e.action}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:11px;color:var(--color-text-tertiary)">${e.date}</span><button class="del-btn" onclick="deleteEntry(${e.id})" aria-label="Delete"><i class="ti ti-trash" aria-hidden="true"></i></button></div></div>`).join('')+'</div>':'<div class="empty">No entries match.</div>';
 }
 
-function deleteEntry(id){
-  entries=entries.filter(e=>e.id!==id);save();renderEntries();
-}
+function deleteEntry(id){entries=entries.filter(e=>e.id!==id);save();renderEntries();}
 
 function sendAIAnalysis(){
-  const summary={
-    total:entries.length,
-    byCat:{},byDept:{},byRisk:{low:0,med:0,high:0,crit:0},byTenure:{},
-    repeats:[]
-  };
-  const nameCounts={};
-  entries.forEach(e=>{
-    summary.byCat[e.category]=(summary.byCat[e.category]||0)+1;
-    summary.byDept[e.dept]=(summary.byDept[e.dept]||0)+1;
-    if(summary.byRisk[e.risk]!==undefined)summary.byRisk[e.risk]++;
-    if(e.tenure)summary.byTenure[e.tenure]=(summary.byTenure[e.tenure]||0)+1;
-    nameCounts[e.name]=(nameCounts[e.name]||0)+1;
-  });
-  summary.repeats=Object.entries(nameCounts).filter(([,v])=>v>=2).map(([k,v])=>k+' ('+v+'x)');
-  sendPrompt('I am an HR Officer at TBSI. Here is my people concern data summary: '+JSON.stringify(summary)+'. Based on this, what are the top retention risks I should address? What patterns stand out? What should I prioritize doing first as HR?');
+  const s={total:entries.length,byCat:{},byDept:{},byRisk:{low:0,med:0,high:0,crit:0},byTenure:{}};
+  const nc={};
+  entries.forEach(e=>{s.byCat[e.category]=(s.byCat[e.category]||0)+1;s.byDept[e.dept]=(s.byDept[e.dept]||0)+1;if(s.byRisk[e.risk]!==undefined)s.byRisk[e.risk]++;if(e.tenure)s.byTenure[e.tenure]=(s.byTenure[e.tenure]||0)+1;nc[e.name]=(nc[e.name]||0)+1;});
+  s.repeats=Object.entries(nc).filter(([,v])=>v>=2).map(([k,v])=>k+' ('+v+'x)');
+  sendPrompt('I am Lyka, HR Officer at TBSI (Top Bliss Solutions Inc.). Here is my people concern tracker data: '+JSON.stringify(s)+'. What are the top retention risks I should address? What patterns stand out? What should I prioritize first?');
 }
 
 renderOverview();
