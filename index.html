@@ -252,13 +252,13 @@ textarea{resize:vertical;min-height:76px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const SHEET_URL='https://script.google.com/macros/s/AKfycbzHU-NbSoRfExPF1Lgr7UVsWtTUBNpPji15LDf5h7Plj9spclefHLOKTLzwyvB2YHD3KA/exec';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbxZoEYkt1f-9Zs0AV6FjdG2pPjr9fKcQjEJwxtubZBzv3bpJsRSKHjmLKSNgwwqx7Lipg/exec';
 let entries=[];let selRisk='';let tChart=null;
 const RL={low:'Low',med:'Medium',high:'High',crit:'Critical'};
 const RC={low:'#639922',med:'#BA7517',high:'#D85A30',crit:'#C0392B'};
 const BC=['#C0392B','#D85A30','#BA7517','#378ADD','#7F77DD','#1D9E75','#5F5E5A','#639922','#D4537E'];
 function rs(r){return{low:1,med:2,high:3,crit:4}[r]||0;}
-function enc(v){return encodeURIComponent(v||'');}
+function enc(v){return encodeURIComponent((v||'').toString().replace(/\n/g,' '));}
 function setSyncStatus(state,label){
   document.getElementById('sync-dot').className='sync-dot'+(state==='syncing'?' syncing':state==='error'?' error':'');
   document.getElementById('sync-label').textContent=label;
@@ -282,7 +282,7 @@ function selR(lvl,btn){
 async function loadFromSheets(){
   setSyncStatus('syncing','Syncing...');
   try{
-    const resp=await fetch(SHEET_URL+'?t='+Date.now());
+    const resp=await fetch(SHEET_URL+'?t='+Date.now(),{mode:'cors'});
     const text=await resp.text();
     let data;try{data=JSON.parse(text);}catch(e){setSyncStatus('error','Invalid response');return false;}
     if(Array.isArray(data)){
@@ -292,6 +292,28 @@ async function loadFromSheets(){
     }
     setSyncStatus('error','Unexpected response');return false;
   }catch(err){setSyncStatus('error','Sheet unavailable');return false;}
+}
+async function saveToSheet(entry){
+  const url=SHEET_URL
+    +'?action=save'
+    +'&id='+enc(entry.id)
+    +'&date='+enc(entry.date)
+    +'&name='+enc(entry.name)
+    +'&dept='+enc(entry.dept)
+    +'&role='+enc(entry.role)
+    +'&tenure='+enc(entry.tenure)
+    +'&category='+enc(entry.category)
+    +'&source='+enc(entry.source)
+    +'&notes='+enc(entry.notes)
+    +'&risk='+enc(entry.risk)
+    +'&action2='+enc(entry.action)
+    +'&followup='+enc(entry.followup);
+  // Use no-cors to bypass CORS block — we won't read the response but data still saves
+  await fetch(url,{mode:'no-cors'});
+}
+async function deleteFromSheet(id){
+  const url=SHEET_URL+'?action=delete&id='+enc(id);
+  await fetch(url,{mode:'no-cors'});
 }
 async function migrateLocalStorage(){
   let local=[];
@@ -305,45 +327,44 @@ async function doMigrate(){
   const local=window._localToMigrate||[];if(!local.length)return;
   document.getElementById('migrate-notice').innerHTML='<div class="migrate-box"><span>Migrating '+local.length+' records...</span></div>';
   setSyncStatus('syncing','Migrating...');
-  let done=0;
-  for(const entry of local){
-    try{
-      const url=SHEET_URL+'?action=save&id='+enc(entry.id)+'&date='+enc(entry.date)+'&name='+enc(entry.name)+'&dept='+enc(entry.dept)+'&role='+enc(entry.role)+'&tenure='+enc(entry.tenure)+'&category='+enc(entry.category)+'&source='+enc(entry.source)+'&notes='+enc(entry.notes)+'&risk='+enc(entry.risk)+'&action='+enc(entry.action)+'&followup='+enc(entry.followup);
-      await fetch(url);done++;
-    }catch(e){}
-  }
+  for(const entry of local){try{await saveToSheet(entry);}catch(e){}}
   try{localStorage.removeItem('tbsi_concerns_v2');localStorage.removeItem('tbsi_concerns');}catch(e){}
-  document.getElementById('migrate-notice').innerHTML='<div class="ibox ok" style="margin-bottom:1rem"><div class="ititle">Migration complete</div><div class="ibody">'+done+' records moved to Google Sheets.</div></div>';
+  document.getElementById('migrate-notice').innerHTML='<div class="ibox ok" style="margin-bottom:1rem"><div class="ititle">Migration complete</div><div class="ibody">Records sent to Google Sheets.</div></div>';
+  // Wait a moment then reload from sheet
+  await new Promise(r=>setTimeout(r,2000));
   await loadFromSheets();renderOverview();
 }
 async function submitEntry(){
   const g=id=>document.getElementById(id).value.trim();
   const name=g('fn'),dept=g('fd'),role=g('fr'),tenure=g('ft'),cat=g('fc'),src=g('fs'),notes=g('fno'),action=g('fa'),fu=g('ff');
   if(!name||!dept||!cat||!selRisk||!notes){alert('Please fill in: name, department, category, notes, and risk level.');return;}
-  const entry={id:String(Date.now()),name,dept,role,tenure,category:cat,source:src,notes,action:action,followup:fu,risk:selRisk,date:new Date().toISOString().split('T')[0]};
+  const entry={id:String(Date.now()),name,dept,role,tenure,category:cat,source:src,notes,action,followup:fu,risk:selRisk,date:new Date().toISOString().split('T')[0]};
   const btn=document.getElementById('save-btn');
   btn.disabled=true;btn.textContent='Saving...';
   setSyncStatus('syncing','Saving...');
   try{
-    const url=SHEET_URL+'?action=save&id='+enc(entry.id)+'&date='+enc(entry.date)+'&name='+enc(entry.name)+'&dept='+enc(entry.dept)+'&role='+enc(entry.role)+'&tenure='+enc(entry.tenure)+'&category='+enc(entry.category)+'&source='+enc(entry.source)+'&notes='+enc(entry.notes)+'&risk='+enc(entry.risk)+'&action='+enc(entry.action)+'&followup='+enc(entry.followup);
-    await fetch(url);
+    await saveToSheet(entry);
+    // Add to local list immediately
     entries.unshift(entry);
+    // Save backup to localStorage
+    try{localStorage.setItem('tbsi_concerns_v2',JSON.stringify(entries));}catch(e){}
     setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
     ['fn','fd','fr','ft','fc','fs','fno','fa','ff'].forEach(id=>document.getElementById(id).value='');
     selRisk='';document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
     sw('overview');
   }catch(err){
     setSyncStatus('error','Save failed');
-    alert('Could not save to Google Sheets. Please check your connection and try again.');
+    alert('Could not save. Please check your connection and try again.');
   }
   btn.disabled=false;btn.textContent='Save concern entry';
 }
 async function deleteEntry(id){
-  if(!confirm('Delete this entry from Google Sheets?'))return;
+  if(!confirm('Delete this entry?'))return;
   setSyncStatus('syncing','Deleting...');
   try{
-    await fetch(SHEET_URL+'?action=delete&id='+enc(id));
+    await deleteFromSheet(id);
     entries=entries.filter(e=>String(e.id)!==String(id));
+    try{localStorage.setItem('tbsi_concerns_v2',JSON.stringify(entries));}catch(e){}
     setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
     renderEntries();
   }catch(err){setSyncStatus('error','Delete failed');}
