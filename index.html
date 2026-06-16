@@ -242,7 +242,7 @@ textarea{resize:vertical;min-height:76px}
     <select class="fsel" id="fe-r" onchange="renderEntries()"><option value="">All risk levels</option><option value="crit">Critical</option><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select>
     <select class="fsel" id="fe-d" onchange="renderEntries()"><option value="">All departments</option></select>
     <select class="fsel" id="fe-c" onchange="renderEntries()"><option value="">All categories</option></select>
-    <button class="aibtn" style="margin-top:0;padding:6px 12px" onclick="loadFromSheets()">&#8635; Sync</button>
+    <button class="aibtn" style="margin-top:0;padding:6px 12px" onclick="syncFromSheet()">&#8635; Sync from Sheet</button>
   </div>
   <div id="entries-list"><div class="empty">Loading...</div></div>
 </div>
@@ -252,13 +252,18 @@ textarea{resize:vertical;min-height:76px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const SHEET_URL='https://script.google.com/macros/s/AKfycbxZoEYkt1f-9Zs0AV6FjdG2pPjr9fKcQjEJwxtubZBzv3bpJsRSKHjmLKSNgwwqx7Lipg/exec';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbwhVzLRO_88dcFBwUpHktfowFJES_HiP-AX39bP-djUUe9vUSivcF-lsBsqtWpxi30XdQ/exec';
+const LS_KEY='tbsi_concerns_v3';
 let entries=[];let selRisk='';let tChart=null;
 const RL={low:'Low',med:'Medium',high:'High',crit:'Critical'};
 const RC={low:'#639922',med:'#BA7517',high:'#D85A30',crit:'#C0392B'};
 const BC=['#C0392B','#D85A30','#BA7517','#378ADD','#7F77DD','#1D9E75','#5F5E5A','#639922','#D4537E'];
+
 function rs(r){return{low:1,med:2,high:3,crit:4}[r]||0;}
 function enc(v){return encodeURIComponent((v||'').toString().replace(/\n/g,' '));}
+function saveLocal(){try{localStorage.setItem(LS_KEY,JSON.stringify(entries));}catch(e){}}
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LS_KEY)||localStorage.getItem('tbsi_concerns_v2')||localStorage.getItem('tbsi_concerns')||'[]');}catch(e){return[];}}
+
 function setSyncStatus(state,label){
   document.getElementById('sync-dot').className='sync-dot'+(state==='syncing'?' syncing':state==='error'?' error':'');
   document.getElementById('sync-label').textContent=label;
@@ -279,20 +284,8 @@ function selR(lvl,btn){
   document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
   btn.classList.add({low:'sl',med:'sm',high:'sh',crit:'sc'}[lvl]);
 }
-async function loadFromSheets(){
-  setSyncStatus('syncing','Syncing...');
-  try{
-    const resp=await fetch(SHEET_URL+'?t='+Date.now(),{mode:'cors'});
-    const text=await resp.text();
-    let data;try{data=JSON.parse(text);}catch(e){setSyncStatus('error','Invalid response');return false;}
-    if(Array.isArray(data)){
-      entries=data.map(e=>({...e,id:String(e.id)}));
-      setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
-      renderEntries();return true;
-    }
-    setSyncStatus('error','Unexpected response');return false;
-  }catch(err){setSyncStatus('error','Sheet unavailable');return false;}
-}
+
+// SAVE to sheet using no-cors (fire and forget)
 async function saveToSheet(entry){
   const url=SHEET_URL
     +'?action=save'
@@ -308,32 +301,41 @@ async function saveToSheet(entry){
     +'&risk='+enc(entry.risk)
     +'&action2='+enc(entry.action)
     +'&followup='+enc(entry.followup);
-  // Use no-cors to bypass CORS block — we won't read the response but data still saves
-  await fetch(url,{mode:'no-cors'});
+  try{await fetch(url,{mode:'no-cors'});}catch(e){}
 }
-async function deleteFromSheet(id){
-  const url=SHEET_URL+'?action=delete&id='+enc(id);
-  await fetch(url,{mode:'no-cors'});
+
+// SYNC from sheet — only replaces if sheet has actual data
+async function syncFromSheet(){
+  setSyncStatus('syncing','Syncing...');
+  try{
+    const resp=await fetch(SHEET_URL+'?t='+Date.now());
+    const text=await resp.text();
+    let data;
+    try{data=JSON.parse(text);}catch(e){
+      setSyncStatus('error','Could not read sheet');
+      return false;
+    }
+    if(Array.isArray(data)&&data.length>0){
+      // Sheet has data — use it as source of truth
+      entries=data.map(e=>({...e,id:String(e.id)}));
+      saveLocal();
+      setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
+      renderEntries();
+      renderOverview();
+      return true;
+    } else if(Array.isArray(data)&&data.length===0){
+      // Sheet is empty — keep local data, don't wipe
+      setSyncStatus('error','Sheet empty \u2014 keeping local records');
+      return false;
+    }
+    setSyncStatus('error','Unexpected response');
+    return false;
+  }catch(err){
+    setSyncStatus('error','Could not reach sheet');
+    return false;
+  }
 }
-async function migrateLocalStorage(){
-  let local=[];
-  try{const v2=localStorage.getItem('tbsi_concerns_v2');const v1=localStorage.getItem('tbsi_concerns');local=JSON.parse(v2||v1||'[]');}catch(e){local=[];}
-  if(!local.length)return;
-  const notice=document.getElementById('migrate-notice');
-  notice.innerHTML='<div class="migrate-box"><span>Found <strong>'+local.length+' record(s)</strong> saved locally. Migrate to Google Sheets?</span><button class="migrate-btn" onclick="doMigrate()">Migrate now</button></div>';
-  window._localToMigrate=local;
-}
-async function doMigrate(){
-  const local=window._localToMigrate||[];if(!local.length)return;
-  document.getElementById('migrate-notice').innerHTML='<div class="migrate-box"><span>Migrating '+local.length+' records...</span></div>';
-  setSyncStatus('syncing','Migrating...');
-  for(const entry of local){try{await saveToSheet(entry);}catch(e){}}
-  try{localStorage.removeItem('tbsi_concerns_v2');localStorage.removeItem('tbsi_concerns');}catch(e){}
-  document.getElementById('migrate-notice').innerHTML='<div class="ibox ok" style="margin-bottom:1rem"><div class="ititle">Migration complete</div><div class="ibody">Records sent to Google Sheets.</div></div>';
-  // Wait a moment then reload from sheet
-  await new Promise(r=>setTimeout(r,2000));
-  await loadFromSheets();renderOverview();
-}
+
 async function submitEntry(){
   const g=id=>document.getElementById(id).value.trim();
   const name=g('fn'),dept=g('fd'),role=g('fr'),tenure=g('ft'),cat=g('fc'),src=g('fs'),notes=g('fno'),action=g('fa'),fu=g('ff');
@@ -342,33 +344,28 @@ async function submitEntry(){
   const btn=document.getElementById('save-btn');
   btn.disabled=true;btn.textContent='Saving...';
   setSyncStatus('syncing','Saving...');
-  try{
-    await saveToSheet(entry);
-    // Add to local list immediately
-    entries.unshift(entry);
-    // Save backup to localStorage
-    try{localStorage.setItem('tbsi_concerns_v2',JSON.stringify(entries));}catch(e){}
-    setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
-    ['fn','fd','fr','ft','fc','fs','fno','fa','ff'].forEach(id=>document.getElementById(id).value='');
-    selRisk='';document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
-    sw('overview');
-  }catch(err){
-    setSyncStatus('error','Save failed');
-    alert('Could not save. Please check your connection and try again.');
-  }
+  // Save locally first — always succeeds
+  entries.unshift(entry);
+  saveLocal();
+  // Then fire to sheet (no-cors, best effort)
+  await saveToSheet(entry);
+  setSyncStatus('ok','Saved \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
+  ['fn','fd','fr','ft','fc','fs','fno','fa','ff'].forEach(id=>document.getElementById(id).value='');
+  selRisk='';document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
   btn.disabled=false;btn.textContent='Save concern entry';
+  sw('overview');
 }
-async function deleteEntry(id){
+
+function deleteEntry(id){
   if(!confirm('Delete this entry?'))return;
-  setSyncStatus('syncing','Deleting...');
-  try{
-    await deleteFromSheet(id);
-    entries=entries.filter(e=>String(e.id)!==String(id));
-    try{localStorage.setItem('tbsi_concerns_v2',JSON.stringify(entries));}catch(e){}
-    setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
-    renderEntries();
-  }catch(err){setSyncStatus('error','Delete failed');}
+  entries=entries.filter(e=>String(e.id)!==String(id));
+  saveLocal();
+  // Fire delete to sheet best effort
+  try{fetch(SHEET_URL+'?action=delete&id='+enc(id),{mode:'no-cors'});}catch(e){}
+  setSyncStatus('ok',entries.length+' record'+(entries.length!==1?'s':''));
+  renderEntries();
 }
+
 function makeBars(data,maxVal,colors,el){
   if(!data.length){el.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';return;}
   el.innerHTML=data.map((d,i)=>'<div class="bar-item"><div class="bar-label"><span style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+d[0]+'</span><span>'+d[1]+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(d[1]/maxVal*100)+'%;background:'+colors[i%colors.length]+'"></div></div></div>').join('');
@@ -378,7 +375,7 @@ function renderOverview(){
   document.getElementById('ov-t').textContent=tot;
   document.getElementById('ov-r').textContent=entries.filter(e=>e.risk==='high'||e.risk==='crit').length;
   const today=new Date().toISOString().split('T')[0];
-  document.getElementById('ov-f').textContent=entries.filter(e=>e.followup&&e.followup<=today).length;
+  document.getElementById('ov-f').textContent=entries.filter(e=>e.followup&&String(e.followup)<=today).length;
   const nc={};entries.forEach(e=>{nc[e.name]=(nc[e.name]||0)+1;});
   document.getElementById('ov-rp').textContent=Object.values(nc).filter(v=>v>=2).length;
   const ins=[];
@@ -388,13 +385,13 @@ function renderOverview(){
     if(critP>=20)ins.push({t:'danger',ti:critP+'% of concerns are critical',b:'More than 1 in 5 are resignation-level. Immediate action needed.'});
     const cc={};entries.forEach(e=>{cc[e.category]=(cc[e.category]||0)+1;});
     const topC=Object.entries(cc).sort((a,b)=>b[1]-a[1])[0];
-    if(topC&&topC[1]>=2)ins.push({t:'warn',ti:'"'+topC[0]+'" is your top repeating theme',b:'Flagged '+topC[1]+' times \u2014 systemic issue, not individual. Needs a structural fix.'});
+    if(topC&&topC[1]>=2)ins.push({t:'warn',ti:'"'+topC[0]+'" is your top repeating theme',b:'Flagged '+topC[1]+' times \u2014 systemic issue. Needs a structural fix.'});
     const dr={};entries.forEach(e=>{if(!dr[e.dept])dr[e.dept]={t:0,s:0};dr[e.dept].t++;dr[e.dept].s+=rs(e.risk);});
     const rk=Object.entries(dr).sort((a,b)=>(b[1].s/b[1].t)-(a[1].s/a[1].t))[0];
-    if(rk)ins.push({t:'warn',ti:rk[0]+' has highest average risk score',b:'Risk weight: '+(rk[1].s/rk[1].t).toFixed(1)+'/4. Review manager relationships and team health here first.'});
+    if(rk)ins.push({t:'warn',ti:rk[0]+' has highest average risk score',b:'Risk weight: '+(rk[1].s/rk[1].t).toFixed(1)+'/4. Review manager relationships here first.'});
     const rep=Object.entries(nc).filter(v=>v[1]>=3);
-    if(rep.length)ins.push({t:'danger',ti:rep.length+' employee(s) flagged 3+ times',b:rep.map(v=>v[0]).join(', ')+' \u2014 recurring signals suggest unresolved root issues.'});
-    if(!ins.length)ins.push({t:'ok',ti:'No major patterns detected yet',b:'Keep logging consistently \u2014 patterns emerge after 5+ entries.'});
+    if(rep.length)ins.push({t:'danger',ti:rep.length+' employee(s) flagged 3+ times',b:rep.map(v=>v[0]).join(', ')+' \u2014 unresolved root issues.'});
+    if(!ins.length)ins.push({t:'ok',ti:'No major patterns detected yet',b:'Keep logging \u2014 patterns emerge after 5+ entries.'});
   }
   document.getElementById('ov-insights').innerHTML=ins.map(i=>'<div class="ibox '+i.t+'"><div class="ititle">'+i.ti+'</div><div class="ibody">'+i.b+'</div></div>').join('');
   const rc={crit:0,high:0,med:0,low:0};entries.forEach(e=>{if(rc[e.risk]!==undefined)rc[e.risk]++;});
@@ -502,16 +499,22 @@ async function runAI(mode){
   btn.disabled=false;
   btn.textContent=mode==='overview'?'\u{1F9E0} Get AI analysis':'\u2728 Interpret patterns';
 }
-async function init(){
-  setSyncStatus('syncing','Connecting...');
-  const ok=await loadFromSheets();
-  if(ok){renderOverview();await migrateLocalStorage();}
-  else{
-    try{const v2=localStorage.getItem('tbsi_concerns_v2');const v1=localStorage.getItem('tbsi_concerns');entries=JSON.parse(v2||v1||'[]');}catch(e){entries=[];}
-    setSyncStatus('error','Sheet unavailable \u2014 using local data');
+
+// INIT — load from local first, then try to sync sheet in background
+function init(){
+  entries=loadLocal();
+  if(entries.length>0){
+    setSyncStatus('ok',entries.length+' record'+(entries.length!==1?'s':'')+' (local)');
+    renderOverview();
+    renderEntries();
+  } else {
+    setSyncStatus('syncing','Loading...');
     renderOverview();
   }
+  // Try sheet sync in background — only updates if sheet has data
+  syncFromSheet();
 }
+
 init();
 </script>
 </body>
