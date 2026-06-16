@@ -114,6 +114,8 @@ textarea{resize:vertical;min-height:76px}
   <button class="tab" onclick="sw('depts')">Dept health</button>
   <button class="tab" onclick="sw('entries')">All entries</button>
   <button class="tab" style="border-left:1px solid rgba(255,255,255,0.1);margin-left:4px" onclick="sw('voice')">+ Log voice</button>
+  <button class="tab" onclick="sw('voverview')">Voice overview</button>
+  <button class="tab" onclick="sw('vpatterns')">Voice patterns</button>
   <button class="tab" onclick="sw('voicelist')">Voice entries</button>
 </div>
 <div class="body">
@@ -333,6 +335,43 @@ textarea{resize:vertical;min-height:76px}
 </div>
 
 <!-- VOICE ENTRIES LIST -->
+<!-- VOICE OVERVIEW -->
+<div class="panel" id="panel-voverview">
+  <div class="metrics-row" id="vov-metrics">
+    <div class="mc" style="border-left:3px solid #1D9E75"><div class="mc-label">Total voice</div><div class="mc-val" id="vov-total" style="color:#1D9E75">0</div><div class="mc-sub">all entries</div></div>
+    <div class="mc" style="border-left:3px solid #639922"><div class="mc-label">Positive</div><div class="mc-val" id="vov-pos" style="color:#639922">0</div><div class="mc-sub">feedback &amp; shoutouts</div></div>
+    <div class="mc" style="border-left:3px solid #378ADD"><div class="mc-label">Suggestions</div><div class="mc-val" id="vov-sug" style="color:#378ADD">0</div><div class="mc-sub">ideas &amp; improvements</div></div>
+    <div class="mc" style="border-left:3px solid #7F77DD"><div class="mc-label">Needs</div><div class="mc-val" id="vov-need" style="color:#7F77DD">0</div><div class="mc-sub">employee needs</div></div>
+  </div>
+  <div id="vov-insights" style="margin-bottom:1rem"></div>
+  <div class="grid2">
+    <div class="card"><div class="ctitle">By type</div><div id="vov-type-bars"></div></div>
+    <div class="card"><div class="ctitle">By department</div><div id="vov-dept-bars"></div></div>
+  </div>
+  <div class="card"><div class="ctitle">By status</div><div id="vov-status-bars"></div></div>
+  <div class="card"><div class="ctitle">Monthly trend</div>
+    <div style="position:relative;width:100%;height:160px"><canvas id="voice-trend-chart"></canvas></div>
+  </div>
+  <button class="aibtn" style="border-color:#1D9E75;color:#1D9E75" onclick="exportVoiceForAI()">&#129504; Export for AI analysis</button>
+  <div id="vov-ai-result"></div>
+</div>
+
+<!-- VOICE PATTERNS -->
+<div class="panel" id="panel-vpatterns">
+  <div class="card"><div class="ctitle">What employees are raising most</div><div id="vp-type-breakdown"></div></div>
+  <div class="grid2">
+    <div class="card"><div class="ctitle">Top concern areas (Directed at)</div><div id="vp-about-bars"></div></div>
+    <div class="card"><div class="ctitle">How voice reaches HR</div><div id="vp-how-bars"></div></div>
+  </div>
+  <div class="card"><div class="ctitle">Department &times; type matrix</div><div id="vp-heatmap"></div></div>
+  <div class="card"><div class="ctitle">Action status tracker</div>
+    <p style="font-size:11px;color:#888;margin-bottom:12px">Track what has been done with each piece of feedback</p>
+    <div id="vp-status-detail"></div>
+  </div>
+  <button class="aibtn" style="margin-top:0;border-color:#1D9E75;color:#1D9E75" onclick="exportVoiceForAI()">&#129504; Export for AI analysis</button>
+</div>
+
+<!-- VOICE ENTRIES LIST -->
 <div class="panel" id="panel-voicelist">
   <div class="frow">
     <select class="fsel" id="fv-t" onchange="renderVoice()"><option value="">All types</option><option>Positive feedback</option><option>Suggestion / idea</option><option>Observation</option><option>Employee need</option><option>Shoutout / recognition</option><option>Process improvement</option><option>Other</option></select>
@@ -366,7 +405,7 @@ function setSyncStatus(state,label){
   document.getElementById('sync-label').textContent=label;
 }
 function sw(name){
-  const tabs=['log','overview','patterns','people','depts','entries','voice','voicelist'];
+  const tabs=['log','overview','patterns','people','depts','entries','voice','voverview','vpatterns','voicelist'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
@@ -375,6 +414,8 @@ function sw(name){
   if(name==='people')renderPeople();
   if(name==='depts')renderDepts();
   if(name==='entries')renderEntries();
+  if(name==='voverview')renderVoiceOverview();
+  if(name==='vpatterns')renderVoicePatterns();
   if(name==='voicelist')renderVoice();
 }
 function selR(lvl,btn){
@@ -790,6 +831,141 @@ function renderVoice(){
         '</div>'+
       '</div>';
     }).join('')+'</div>';
+}
+
+
+let vTrendChart=null;
+const TC={'Positive feedback':'#1D9E75','Suggestion / idea':'#378ADD','Observation':'#BA7517','Employee need':'#7F77DD','Shoutout / recognition':'#639922','Process improvement':'#D4537E','Other':'#5F5E5A'};
+
+function makeVBars(data,maxVal,colors,el){
+  if(!data.length){el.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';return;}
+  el.innerHTML=data.map((d,i)=>'<div class="bar-item"><div class="bar-label"><span style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+d[0]+'</span><span>'+d[1]+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(d[1]/maxVal*100)+'%;background:'+(Array.isArray(colors)?colors[i%colors.length]:colors)+'"></div></div></div>').join('');
+}
+
+function renderVoiceOverview(){
+  const tot=voices.length;
+  document.getElementById('vov-total').textContent=tot;
+  const pos=voices.filter(e=>e.type==='Positive feedback'||e.type==='Shoutout / recognition').length;
+  const sug=voices.filter(e=>e.type==='Suggestion / idea'||e.type==='Process improvement').length;
+  const need=voices.filter(e=>e.type==='Employee need').length;
+  document.getElementById('vov-pos').textContent=pos;
+  document.getElementById('vov-sug').textContent=sug;
+  document.getElementById('vov-need').textContent=need;
+
+  // Auto insights
+  const ins=[];
+  if(!tot){ins.push({t:'info',ti:'No voice entries yet',b:'Start logging feedback, suggestions, and observations to see insights here.'});}
+  else{
+    if(pos>=sug&&pos>0)ins.push({t:'ok',ti:'Positive signals are strong',b:pos+' positive feedback or shoutout entr'+(pos===1?'y':'ies')+' logged. This is worth surfacing to leadership.'});
+    const pending=voices.filter(e=>!e.status||e.status==='Noted').length;
+    if(pending>0)ins.push({t:'warn',ti:pending+' entr'+(pending===1?'y':'ies')+' still at "Noted" status',b:'These need follow-up action. Review and update their status in Voice entries.'});
+    const typeCounts={};voices.forEach(e=>{typeCounts[e.type]=(typeCounts[e.type]||0)+1;});
+    const topType=Object.entries(typeCounts).sort((a,b)=>b[1]-a[1])[0];
+    if(topType&&topType[1]>=2)ins.push({t:'info',ti:'"'+topType[0]+'" is the most common voice type',b:'Flagged '+topType[1]+' times. This pattern is worth addressing directly with leadership.'});
+    const deptCounts={};voices.forEach(e=>{deptCounts[e.dept]=(deptCounts[e.dept]||0)+1;});
+    const topDept=Object.entries(deptCounts).sort((a,b)=>b[1]-a[1])[0];
+    if(topDept)ins.push({t:'info',ti:topDept[0]+' has the most voice entries',b:topDept[1]+' entr'+(topDept[1]===1?'y':'ies')+' from this department. They are actively communicating — keep that channel open.'});
+  }
+  document.getElementById('vov-insights').innerHTML=ins.map(i=>'<div class="ibox '+i.t+'"><div class="ititle">'+i.ti+'</div><div class="ibody">'+i.b+'</div></div>').join('');
+
+  // Type bars
+  const typeCounts={};voices.forEach(e=>{typeCounts[e.type]=(typeCounts[e.type]||0)+1;});
+  const typeData=Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]);
+  const typeColors=typeData.map(([t])=>TC[t]||'#888');
+  const typeEl=document.getElementById('vov-type-bars');
+  if(!typeData.length){typeEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';}
+  else{typeEl.innerHTML=typeData.map((d,i)=>'<div class="bar-item"><div class="bar-label"><span style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+d[0]+'</span><span>'+d[1]+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(d[1]/typeData[0][1]*100)+'%;background:'+typeColors[i]+'"></div></div></div>').join('');}
+
+  // Dept bars
+  const deptCounts={};voices.forEach(e=>{deptCounts[e.dept]=(deptCounts[e.dept]||0)+1;});
+  const deptData=Object.entries(deptCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  makeVBars(deptData,deptData[0]?deptData[0][1]:1,['#1D9E75','#378ADD','#BA7517','#7F77DD','#639922','#D4537E'],document.getElementById('vov-dept-bars'));
+
+  // Status bars
+  const stCounts={};voices.forEach(e=>{const s=e.status||'Noted';stCounts[s]=(stCounts[s]||0)+1;});
+  const stData=Object.entries(stCounts).sort((a,b)=>b[1]-a[1]);
+  const stColors={'Noted':'#888','Shared with leadership':'#378ADD','Action taken':'#1D9E75','Under review':'#BA7517','Implemented':'#639922'};
+  const stEl=document.getElementById('vov-status-bars');
+  if(!stData.length){stEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';}
+  else{stEl.innerHTML=stData.map(d=>'<div class="bar-item"><div class="bar-label"><span>'+d[0]+'</span><span>'+d[1]+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(d[1]/stData[0][1]*100)+'%;background:'+(stColors[d[0]]||'#888')+'"></div></div></div>').join('');}
+
+  // Trend chart
+  const mm={};voices.forEach(e=>{const m=String(e.date).substring(0,7);mm[m]=(mm[m]||0)+1;});
+  const months=Object.keys(mm).sort().slice(-6);
+  const mdata=months.map(m=>mm[m]);
+  const mlabels=months.map(m=>{const d=new Date(m+'-01');return d.toLocaleString('default',{month:'short',year:'2-digit'});});
+  const ctx=document.getElementById('voice-trend-chart');
+  if(ctx){
+    if(vTrendChart)vTrendChart.destroy();
+    vTrendChart=new Chart(ctx,{type:'line',data:{labels:mlabels.length?mlabels:['No data'],datasets:[{label:'Voice entries',data:mdata.length?mdata:[0],borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.07)',borderWidth:2,pointBackgroundColor:'#1D9E75',pointRadius:4,tension:0.35,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#888'},grid:{color:'rgba(136,135,128,0.12)'}},x:{ticks:{color:'#888'},grid:{display:false}}}}});
+  }
+}
+
+function renderVoicePatterns(){
+  const TC2={'Positive feedback':'#1D9E75','Suggestion / idea':'#378ADD','Observation':'#BA7517','Employee need':'#7F77DD','Shoutout / recognition':'#639922','Process improvement':'#D4537E','Other':'#5F5E5A'};
+
+  // Full type breakdown with context
+  const typeCounts={};voices.forEach(e=>{typeCounts[e.type]=(typeCounts[e.type]||0)+1;});
+  const typeEl=document.getElementById('vp-type-breakdown');
+  if(!voices.length){typeEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';}
+  else{
+    typeEl.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:8px">'+
+      Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).map(([t,c])=>
+        '<div style="background:'+(TC2[t]||'#888')+'18;border:1px solid '+(TC2[t]||'#888')+'44;border-radius:8px;padding:10px 16px;min-width:120px">'+
+        '<div style="font-size:22px;font-weight:500;color:'+(TC2[t]||'#888')+'">'+c+'</div>'+
+        '<div style="font-size:11px;font-weight:500;color:'+(TC2[t]||'#888')+';margin-top:2px">'+t+'</div>'+
+        '<div style="font-size:11px;color:#888">'+Math.round(c/voices.length*100)+'% of total</div>'+
+        '</div>'
+      ).join('')+'</div>';
+  }
+
+  // About/directed at bars
+  const aboutCounts={};voices.forEach(e=>{if(e.about){const a=e.about.trim();if(a)aboutCounts[a]=(aboutCounts[a]||0)+1;}});
+  const aboutData=Object.entries(aboutCounts).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  makeVBars(aboutData,aboutData[0]?aboutData[0][1]:1,['#378ADD','#1D9E75','#BA7517','#7F77DD','#D4537E','#639922','#5F5E5A'],document.getElementById('vp-about-bars'));
+
+  // How bars
+  const howCounts={};voices.forEach(e=>{const h=e.how||'Unknown';howCounts[h]=(howCounts[h]||0)+1;});
+  const howData=Object.entries(howCounts).sort((a,b)=>b[1]-a[1]);
+  makeVBars(howData,howData[0]?howData[0][1]:1,['#1D9E75','#378ADD','#BA7517','#7F77DD','#639922','#D4537E','#5F5E5A'],document.getElementById('vp-how-bars'));
+
+  // Dept x type heatmap
+  const types=Object.keys(typeCounts).slice(0,5);
+  const depts=[...new Set(voices.map(e=>e.dept))].filter(Boolean);
+  const hEl=document.getElementById('vp-heatmap');
+  if(!types.length||!depts.length){hEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';}
+  else{
+    const hD={};voices.forEach(e=>{const k=e.dept+'__'+e.type;hD[k]=(hD[k]||0)+1;});
+    const maxH=Math.max(...Object.values(hD),1);
+    hEl.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">'+
+      '<tr><td style="width:130px;padding:4px;color:#666"></td>'+types.map(t=>'<th style="padding:6px 4px;text-align:center;color:#666;font-weight:500;font-size:10px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+t+'">'+t.split(' ').slice(0,2).join(' ')+'</th>').join('')+'</tr>'+
+      depts.map(dept=>'<tr><td style="padding:6px 4px;color:#666;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+dept+'">'+dept+'</td>'+
+        types.map(t=>{const v=hD[dept+'__'+t]||0;const alpha=v>0?0.15+0.7*(v/maxH):0;const color=TC2[t]||'#888';return '<td style="padding:4px;text-align:center"><div style="background:'+color+';opacity:'+alpha.toFixed(2)+';border-radius:4px;height:24px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:500;color:#111;opacity:'+(v>0?1:0)+'">'+( v||'')+'</span></div></td>';}).join('')+'</tr>'
+      ).join('')+'</table></div>';
+  }
+
+  // Status detail
+  const stEl=document.getElementById('vp-status-detail');
+  const stColors2={'Noted':'#888','Shared with leadership':'#378ADD','Action taken':'#1D9E75','Under review':'#BA7517','Implemented':'#639922'};
+  const statuses=['Implemented','Action taken','Shared with leadership','Under review','Noted'];
+  if(!voices.length){stEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';}
+  else{
+    stEl.innerHTML=statuses.map(s=>{
+      const items=voices.filter(e=>(e.status||'Noted')===s);
+      if(!items.length)return '';
+      return '<div style="margin-bottom:12px">'+
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'+
+        '<span style="width:8px;height:8px;border-radius:50%;background:'+(stColors2[s]||'#888')+';display:inline-block"></span>'+
+        '<span style="font-size:12px;font-weight:500;color:#111">'+s+'</span>'+
+        '<span style="font-size:11px;color:#888">('+items.length+')</span></div>'+
+        items.map(e=>'<div style="margin-left:14px;padding:6px 10px;background:#f8f8f8;border-radius:6px;margin-bottom:4px">'+
+          '<span style="font-size:12px;font-weight:500">'+e.name+'</span>'+
+          '<span style="font-size:11px;color:#666"> &middot; '+e.dept+' &middot; '+e.type+'</span>'+
+          '<div style="font-size:11px;color:#888;margin-top:2px">'+String(e.notes).substring(0,70)+(String(e.notes).length>70?'...':'')+'</div>'+
+          '</div>').join('')+
+        '</div>';
+    }).join('');
+  }
 }
 
 function exportVoiceForAI(){
