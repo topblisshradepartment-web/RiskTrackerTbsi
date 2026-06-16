@@ -1,15 +1,20 @@
-
-<h2 class="sr-only">Top Bliss Solutions People Risk Tracker — synced to Google Sheets</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Top Bliss Solutions — People Risk Tracker</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-.app{font-family:var(--font-sans)}
-.header{background:#111111;padding:14px 20px;display:flex;align-items:center;gap:12px;border-radius:var(--border-radius-lg) var(--border-radius-lg) 0 0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;min-height:100vh;padding:1.5rem}
+.app{max-width:900px;margin:0 auto}
+.header{background:#111111;padding:14px 20px;display:flex;align-items:center;gap:12px;border-radius:12px 12px 0 0}
 .header img{width:36px;height:36px;object-fit:contain;border-radius:4px}
 .hdiv{width:1px;height:28px;background:rgba(255,255,255,0.12);margin:0 4px}
 .htxt .ht{font-size:13px;font-weight:500;color:#fff}
 .htxt .hs{font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px}
 .sync-status{margin-left:auto;font-size:11px;display:flex;align-items:center;gap:5px}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:#639922}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#639922;transition:background 0.3s}
 .sync-dot.syncing{background:#BA7517}
 .sync-dot.error{background:#C0392B}
 .sync-label{color:rgba(255,255,255,0.5)}
@@ -17,35 +22,38 @@
 .tab{padding:10px 14px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;gap:5px}
 .tab.active{color:#fff;border-bottom-color:#C0392B}
 .tab:hover:not(.active){color:rgba(255,255,255,0.75)}
-.body{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-top:none;border-radius:0 0 var(--border-radius-lg) var(--border-radius-lg);padding:1.25rem}
+.body{background:#fff;border:0.5px solid #e5e5e5;border-top:none;border-radius:0 0 12px 12px;padding:1.25rem}
 .panel{display:none}.panel.active{display:block}
 .metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
-.mc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px 16px}
-.mc-label{font-size:11px;color:var(--color-text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
-.mc-val{font-size:26px;font-weight:500;color:var(--color-text-primary)}
-.mc-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+@media(max-width:600px){.metrics-row{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr !important}.rselector{flex-wrap:wrap}}
+.mc{background:#f8f8f8;border-radius:8px;padding:14px 16px}
+.mc-label{font-size:11px;color:#666;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
+.mc-val{font-size:26px;font-weight:500;color:#111}
+.mc-sub{font-size:11px;color:#888;margin-top:2px}
 .mc.red .mc-val{color:#C0392B}
 .mc.amb .mc-val{color:#BA7517}
-.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
-.ctitle{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.ctitle i{color:#C0392B;font-size:14px}
+.card{background:#fff;border:0.5px solid #e5e5e5;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.ctitle{font-size:11px;font-weight:500;color:#666;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ctitle svg{color:#C0392B;flex-shrink:0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 .bar-item{margin-bottom:10px}
-.bar-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:3px;display:flex;justify-content:space-between}
-.bar-track{height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.bar-label{font-size:12px;color:#666;margin-bottom:3px;display:flex;justify-content:space-between}
+.bar-track{height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;transition:width 0.4s ease}
-label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;font-weight:500}
-input,select,textarea{width:100%;font-family:var(--font-sans);font-size:14px}
+label{display:block;font-size:12px;color:#555;margin-bottom:4px;font-weight:500}
+input,select,textarea{width:100%;font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#111;outline:none;transition:border-color 0.15s}
+input:focus,select:focus,textarea:focus{border-color:#C0392B}
 textarea{resize:vertical;min-height:76px}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:600px){.fg{grid-template-columns:1fr}}
 .full{grid-column:1/-1}
 .rselector{display:flex;gap:8px}
-.rbtn{flex:1;padding:8px 4px;font-size:11px;font-weight:500;border-radius:var(--border-radius-md);cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all 0.15s;text-align:center}
+.rbtn{flex:1;padding:8px 4px;font-size:11px;font-weight:500;border-radius:8px;cursor:pointer;border:1px solid #ddd;background:#f8f8f8;color:#555;transition:all 0.15s;text-align:center}
 .rbtn.sl{background:#EAF3DE;color:#3B6D11;border-color:#639922}
 .rbtn.sm{background:#FAEEDA;color:#854F0B;border-color:#BA7517}
 .rbtn.sh{background:#FAECE7;color:#993C1D;border-color:#D85A30}
 .rbtn.sc{background:#FCEBEB;color:#A32D2D;border-color:#C0392B}
-.savebtn{width:100%;padding:11px;font-size:14px;font-weight:500;border-radius:var(--border-radius-md);background:#C0392B;color:#fff;border:none;cursor:pointer;margin-top:8px;transition:opacity 0.15s}
+.savebtn{width:100%;padding:11px;font-size:14px;font-weight:500;border-radius:8px;background:#C0392B;color:#fff;border:none;cursor:pointer;margin-top:8px;transition:opacity 0.15s}
 .savebtn:hover{opacity:0.88}
 .savebtn:disabled{opacity:0.5;cursor:not-allowed}
 .badge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
@@ -53,59 +61,64 @@ textarea{resize:vertical;min-height:76px}
 .bmed{background:#FAEEDA;color:#854F0B}
 .bhigh{background:#FAECE7;color:#993C1D}
 .bcrit{background:#FCEBEB;color:#A32D2D}
-.binfo{background:var(--color-background-info);color:var(--color-text-info)}
+.binfo{background:#EBF5FF;color:#1A56DB}
 .bred{background:#FAECEB;color:#7F1D1D}
-.erow{padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start}
+.erow{padding:10px 0;border-bottom:1px solid #f0f0f0;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start}
 .erow:last-child{border-bottom:none}
-.ename{font-size:13px;font-weight:500;color:var(--color-text-primary)}
-.emeta{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
-.enotes{font-size:12px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5}
-.delbtn{background:none;border:none;color:var(--color-text-tertiary);cursor:pointer;font-size:14px;padding:2px}
+.ename{font-size:13px;font-weight:500;color:#111}
+.emeta{font-size:12px;color:#666;margin-top:2px}
+.enotes{font-size:12px;color:#666;margin-top:4px;line-height:1.5}
+.delbtn{background:none;border:none;color:#bbb;cursor:pointer;font-size:18px;padding:2px;line-height:1}
 .delbtn:hover{color:#C0392B}
-.empty{text-align:center;padding:2rem;color:var(--color-text-secondary);font-size:13px}
+.empty{text-align:center;padding:2rem;color:#999;font-size:13px}
 .frow{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
-.fsel{font-size:13px;padding:6px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer}
-.aibtn{padding:8px 14px;font-size:12px;font-weight:500;border-radius:var(--border-radius-md);background:none;border:0.5px solid #C0392B;color:#C0392B;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.15s;margin-top:8px}
+.fsel{font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#111;cursor:pointer}
+.aibtn{padding:8px 14px;font-size:12px;font-weight:500;border-radius:8px;background:none;border:1px solid #C0392B;color:#C0392B;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.15s;margin-top:8px}
 .aibtn:hover{background:#FAECEB}
 .aibtn:disabled{opacity:0.5;cursor:not-allowed}
-.flagrow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.flagrow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0}
 .flagrow:last-child{border-bottom:none}
-.ibox{border-left:3px solid;padding:10px 14px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin-bottom:8px}
+.ibox{border-left:3px solid;padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:8px}
 .ibox.warn{border-color:#BA7517;background:#FAEEDA}
 .ibox.danger{border-color:#C0392B;background:#FAECEB}
 .ibox.ok{border-color:#639922;background:#EAF3DE}
-.ibox.info{border-color:var(--color-border-info);background:var(--color-background-info)}
+.ibox.info{border-color:#1A56DB;background:#EBF5FF}
 .ititle{font-size:12px;font-weight:500;margin-bottom:2px}
 .ibox.warn .ititle{color:#854F0B}
 .ibox.danger .ititle{color:#7F1D1D}
 .ibox.ok .ititle{color:#3B6D11}
-.ibox.info .ititle{color:var(--color-text-info)}
-.ibody{font-size:12px;color:var(--color-text-secondary)}
-.ai-result{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px 16px;margin-top:12px;font-size:13px;color:var(--color-text-primary);line-height:1.6;white-space:pre-wrap}
-.migrate-box{background:#FAEEDA;border-left:3px solid #BA7517;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#854F0B;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.migrate-btn{padding:5px 12px;font-size:11px;font-weight:500;border-radius:var(--border-radius-md);background:#BA7517;color:#fff;border:none;cursor:pointer;white-space:nowrap}
+.ibox.info .ititle{color:#1A56DB}
+.ibody{font-size:12px;color:#555}
+.ai-result{background:#f8f8f8;border-radius:8px;padding:14px 16px;margin-top:12px;font-size:13px;color:#111;line-height:1.6;white-space:pre-wrap}
+.migrate-box{background:#FAEEDA;border-left:3px solid #BA7517;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#854F0B;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.migrate-btn{padding:5px 12px;font-size:11px;font-weight:500;border-radius:8px;background:#BA7517;color:#fff;border:none;cursor:pointer;white-space:nowrap}
 </style>
-
+</head>
+<body>
 <div class="app">
 <div class="header">
-  <img id="tblogo" src="/mnt/user-data/uploads/topbliss_new_logo_may_2026.png" alt="Top Bliss Solutions" onerror="this.style.display='none'"/>
+  <img src="logo.png" alt="Top Bliss Solutions" onerror="this.style.display='none'" id="tblogo"/>
   <div class="hdiv"></div>
-  <div class="htxt"><div class="ht">People Risk Tracker</div><div class="hs">Top Bliss Solutions Inc. · HR</div></div>
+  <div class="htxt">
+    <div class="ht">People Risk Tracker</div>
+    <div class="hs">Top Bliss Solutions Inc. · HR</div>
+  </div>
   <div class="sync-status">
     <div class="sync-dot syncing" id="sync-dot"></div>
     <span class="sync-label" id="sync-label">Connecting...</span>
   </div>
 </div>
 <div class="tabs">
-  <button class="tab active" onclick="sw('log')"><i class="ti ti-plus" aria-hidden="true"></i>Log</button>
-  <button class="tab" onclick="sw('overview')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Overview</button>
-  <button class="tab" onclick="sw('patterns')"><i class="ti ti-chart-dots" aria-hidden="true"></i>Patterns</button>
-  <button class="tab" onclick="sw('people')"><i class="ti ti-users" aria-hidden="true"></i>People watch</button>
-  <button class="tab" onclick="sw('depts')"><i class="ti ti-building" aria-hidden="true"></i>Dept health</button>
-  <button class="tab" onclick="sw('entries')"><i class="ti ti-list" aria-hidden="true"></i>All entries</button>
+  <button class="tab active" onclick="sw('log')">+ Log</button>
+  <button class="tab" onclick="sw('overview')">Overview</button>
+  <button class="tab" onclick="sw('patterns')">Patterns</button>
+  <button class="tab" onclick="sw('people')">People watch</button>
+  <button class="tab" onclick="sw('depts')">Dept health</button>
+  <button class="tab" onclick="sw('entries')">All entries</button>
 </div>
 <div class="body">
 
+<!-- LOG -->
 <div class="panel active" id="panel-log">
   <div id="migrate-notice"></div>
   <div class="fg">
@@ -117,7 +130,7 @@ textarea{resize:vertical;min-height:76px}
         <option>DTC – Telesales</option>
         <option>DTC – Chat Sales</option>
         <option>Branding / General Management</option>
-        <option>Ads & Creative</option>
+        <option>Ads &amp; Creative</option>
         <option>Distribution Channel</option>
         <option>Logistics</option>
         <option>HR</option>
@@ -140,9 +153,9 @@ textarea{resize:vertical;min-height:76px}
     <div><label>Concern category</label>
       <select id="fc">
         <option value="">Select</option>
-        <option>Compensation & benefits</option>
+        <option>Compensation &amp; benefits</option>
         <option>Career growth / promotion</option>
-        <option>Workload & burnout</option>
+        <option>Workload &amp; burnout</option>
         <option>Relationship with manager</option>
         <option>Peer conflict</option>
         <option>Work environment</option>
@@ -184,6 +197,7 @@ textarea{resize:vertical;min-height:76px}
   <button class="savebtn" id="save-btn" onclick="submitEntry()">Save concern entry</button>
 </div>
 
+<!-- OVERVIEW -->
 <div class="panel" id="panel-overview">
   <div class="metrics-row">
     <div class="mc"><div class="mc-label">Total logged</div><div class="mc-val" id="ov-t">0</div><div class="mc-sub">all concerns</div></div>
@@ -193,46 +207,50 @@ textarea{resize:vertical;min-height:76px}
   </div>
   <div id="ov-insights" style="margin-bottom:1rem"></div>
   <div class="grid2">
-    <div class="card"><div class="ctitle"><i class="ti ti-shield-half" aria-hidden="true"></i>Risk distribution</div><div id="ov-rb"></div></div>
-    <div class="card"><div class="ctitle"><i class="ti ti-tag" aria-hidden="true"></i>Top concern themes</div><div id="ov-cb"></div></div>
+    <div class="card"><div class="ctitle">Risk distribution</div><div id="ov-rb"></div></div>
+    <div class="card"><div class="ctitle">Top concern themes</div><div id="ov-cb"></div></div>
   </div>
-  <div class="card"><div class="ctitle"><i class="ti ti-trending-up" aria-hidden="true"></i>Monthly trend</div>
-    <div style="position:relative;width:100%;height:160px"><canvas id="trend-chart" role="img" aria-label="Monthly trend">Monthly data.</canvas></div>
+  <div class="card"><div class="ctitle">Monthly trend</div>
+    <div style="position:relative;width:100%;height:160px"><canvas id="trend-chart"></canvas></div>
   </div>
-  <button class="aibtn" id="ai-ov-btn" onclick="runAI('overview')"><i class="ti ti-brain" aria-hidden="true"></i> Get AI analysis</button>
+  <button class="aibtn" id="ai-ov-btn" onclick="runAI('overview')">&#129504; Get AI analysis</button>
   <div id="ai-ov-result"></div>
 </div>
 
+<!-- PATTERNS -->
 <div class="panel" id="panel-patterns">
-  <div class="card"><div class="ctitle"><i class="ti ti-chart-bar" aria-hidden="true"></i>Concern categories</div><div id="pt-cb"></div></div>
+  <div class="card"><div class="ctitle">Concern categories</div><div id="pt-cb"></div></div>
   <div class="grid2">
-    <div class="card"><div class="ctitle"><i class="ti ti-clock" aria-hidden="true"></i>Risk by tenure</div><div id="pt-ten"></div></div>
-    <div class="card"><div class="ctitle"><i class="ti ti-door-enter" aria-hidden="true"></i>How concerns surface</div><div id="pt-src"></div></div>
+    <div class="card"><div class="ctitle">Risk by tenure</div><div id="pt-ten"></div></div>
+    <div class="card"><div class="ctitle">How concerns surface</div><div id="pt-src"></div></div>
   </div>
-  <div class="card"><div class="ctitle"><i class="ti ti-table" aria-hidden="true"></i>Category × risk heatmap</div><div id="pt-heat"></div></div>
-  <button class="aibtn" id="ai-pt-btn" onclick="runAI('patterns')"><i class="ti ti-sparkles" aria-hidden="true"></i> Interpret patterns</button>
+  <div class="card"><div class="ctitle">Category &times; risk heatmap</div><div id="pt-heat"></div></div>
+  <button class="aibtn" id="ai-pt-btn" onclick="runAI('patterns')">&#10024; Interpret patterns</button>
   <div id="ai-pt-result"></div>
 </div>
 
+<!-- PEOPLE WATCH -->
 <div class="panel" id="panel-people">
-  <div class="card" style="margin-bottom:1rem"><div class="ctitle"><i class="ti ti-repeat" aria-hidden="true"></i>Repeat concern flags</div><div id="pw-rep"></div></div>
-  <div class="card"><div class="ctitle"><i class="ti ti-alert-triangle" aria-hidden="true"></i>Critical & high risk — watchlist</div><div id="pw-wl"></div></div>
+  <div class="card" style="margin-bottom:1rem"><div class="ctitle">Repeat concern flags</div><div id="pw-rep"></div></div>
+  <div class="card"><div class="ctitle">Critical &amp; high risk — watchlist</div><div id="pw-wl"></div></div>
 </div>
 
+<!-- DEPT HEALTH -->
 <div class="panel" id="panel-depts">
-  <div class="card"><div class="ctitle"><i class="ti ti-activity" aria-hidden="true"></i>Department health scores</div>
-    <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:12px">Weighted risk index — higher = more at-risk</p>
+  <div class="card"><div class="ctitle">Department health scores</div>
+    <p style="font-size:11px;color:#888;margin-bottom:12px">Weighted risk index — higher = more at-risk</p>
     <div id="dh-b"></div>
   </div>
-  <div class="card"><div class="ctitle"><i class="ti ti-table" aria-hidden="true"></i>Concerns by dept × category</div><div id="dh-t"></div></div>
+  <div class="card"><div class="ctitle">Concerns by dept &times; category</div><div id="dh-t"></div></div>
 </div>
 
+<!-- ALL ENTRIES -->
 <div class="panel" id="panel-entries">
   <div class="frow">
     <select class="fsel" id="fe-r" onchange="renderEntries()"><option value="">All risk levels</option><option value="crit">Critical</option><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select>
     <select class="fsel" id="fe-d" onchange="renderEntries()"><option value="">All departments</option></select>
     <select class="fsel" id="fe-c" onchange="renderEntries()"><option value="">All categories</option></select>
-    <button class="aibtn" style="margin-top:0;padding:6px 12px" onclick="loadFromSheets()"><i class="ti ti-refresh" aria-hidden="true"></i> Sync from Sheet</button>
+    <button class="aibtn" style="margin-top:0;padding:6px 12px" onclick="loadFromSheets()">&#8635; Sync from Sheet</button>
   </div>
   <div id="entries-list"><div class="empty">Loading...</div></div>
 </div>
@@ -242,11 +260,10 @@ textarea{resize:vertical;min-height:76px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const SHEET_URL='https://script.google.com/macros/s/AKfycbyILPl9ZWiHPF3UOUq2sJDL9cjPsNHtY0WVrTIza3I2BobyyJuuMqI_EFDuEISuFB68PQ/exec';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbyHhHBQc3_eRQwNp_55zY8ADRuftvGsTDpToWkUrBBxAA3Nl7bUmQF5YY2Xs52PaPzBRA/exec';
 let entries=[];
 let selRisk='';
 let tChart=null;
-
 const RL={low:'Low',med:'Medium',high:'High',crit:'Critical'};
 const RC={low:'#639922',med:'#BA7517',high:'#D85A30',crit:'#C0392B'};
 const BC=['#C0392B','#D85A30','#BA7517','#378ADD','#7F77DD','#1D9E75','#5F5E5A','#639922','#D4537E'];
@@ -284,13 +301,10 @@ async function loadFromSheets(){
     const resp=await fetch(SHEET_URL+'?t='+Date.now());
     const text=await resp.text();
     let data;
-    try{data=JSON.parse(text);}catch(e){
-      setSyncStatus('error','Invalid response from Sheet');
-      return false;
-    }
+    try{data=JSON.parse(text);}catch(e){setSyncStatus('error','Invalid response');return false;}
     if(Array.isArray(data)){
       entries=data.map(e=>({...e,id:String(e.id)}));
-      setSyncStatus('ok',`Synced · ${entries.length} record${entries.length!==1?'s':''}`);
+      setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
       renderEntries();
       return true;
     }
@@ -304,32 +318,24 @@ async function loadFromSheets(){
 
 async function migrateLocalStorage(){
   let local=[];
-  try{
-    const v2=localStorage.getItem('tbsi_concerns_v2');
-    const v1=localStorage.getItem('tbsi_concerns');
-    local=JSON.parse(v2||v1||'[]');
-  }catch(e){local=[];}
+  try{const v2=localStorage.getItem('tbsi_concerns_v2');const v1=localStorage.getItem('tbsi_concerns');local=JSON.parse(v2||v1||'[]');}catch(e){local=[];}
   if(!local.length)return;
   const notice=document.getElementById('migrate-notice');
-  notice.innerHTML=`<div class="migrate-box"><span><i class="ti ti-database" aria-hidden="true" style="font-size:13px;margin-right:4px"></i> Found <strong>${local.length} record(s)</strong> saved locally. Migrate them to Google Sheets?</span><button class="migrate-btn" onclick="doMigrate()">Migrate now</button></div>`;
+  notice.innerHTML='<div class="migrate-box"><span>Found <strong>'+local.length+' record(s)</strong> saved locally. Migrate to Google Sheets?</span><button class="migrate-btn" onclick="doMigrate()">Migrate now</button></div>';
   window._localToMigrate=local;
 }
 
 async function doMigrate(){
   const local=window._localToMigrate||[];
   if(!local.length)return;
-  const notice=document.getElementById('migrate-notice');
-  notice.innerHTML=`<div class="migrate-box"><span><i class="ti ti-loader-2" aria-hidden="true" style="font-size:13px;margin-right:4px"></i> Migrating ${local.length} records...</span></div>`;
+  document.getElementById('migrate-notice').innerHTML='<div class="migrate-box"><span>Migrating '+local.length+' records...</span></div>';
   setSyncStatus('syncing','Migrating...');
   let done=0;
   for(const entry of local){
-    try{
-      await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'save',entry}),headers:{'Content-Type':'application/json'}});
-      done++;
-    }catch(e){}
+    try{await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'save',entry}),headers:{'Content-Type':'application/json'}});done++;}catch(e){}
   }
   try{localStorage.removeItem('tbsi_concerns_v2');localStorage.removeItem('tbsi_concerns');}catch(e){}
-  notice.innerHTML=`<div class="ibox ok" style="margin-bottom:1rem"><div class="ititle">Migration complete</div><div class="ibody">${done} records moved to Google Sheets.</div></div>`;
+  document.getElementById('migrate-notice').innerHTML='<div class="ibox ok" style="margin-bottom:1rem"><div class="ititle">Migration complete</div><div class="ibody">'+done+' records moved to Google Sheets.</div></div>';
   await loadFromSheets();
   renderOverview();
 }
@@ -343,22 +349,15 @@ async function submitEntry(){
   btn.disabled=true;btn.textContent='Saving...';
   setSyncStatus('syncing','Saving...');
   try{
-    const resp=await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'save',entry}),headers:{'Content-Type':'application/json'}});
-    const text=await resp.text();
-    let result;
-    try{result=JSON.parse(text);}catch(e){result={status:'ok'};}
-    if(result.status==='ok'||resp.ok){
-      entries.unshift(entry);
-      setSyncStatus('ok',`Synced · ${entries.length} record${entries.length!==1?'s':''}`);
-      ['fn','fd','fr','ft','fc','fs','fno','fa','ff'].forEach(id=>document.getElementById(id).value='');
-      selRisk='';
-      document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
-      sw('overview');
-    } else {
-      throw new Error('Save failed');
-    }
+    await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'save',entry}),headers:{'Content-Type':'application/json'}});
+    entries.unshift(entry);
+    setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
+    ['fn','fd','fr','ft','fc','fs','fno','fa','ff'].forEach(id=>document.getElementById(id).value='');
+    selRisk='';
+    document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
+    sw('overview');
   }catch(err){
-    setSyncStatus('error','Save failed — check connection');
+    setSyncStatus('error','Save failed');
     alert('Could not save to Google Sheets. Please check your connection and try again.');
   }
   btn.disabled=false;btn.textContent='Save concern entry';
@@ -370,16 +369,14 @@ async function deleteEntry(id){
   try{
     await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'delete',id:String(id)}),headers:{'Content-Type':'application/json'}});
     entries=entries.filter(e=>String(e.id)!==String(id));
-    setSyncStatus('ok',`Synced · ${entries.length} record${entries.length!==1?'s':''}`);
+    setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
     renderEntries();
-  }catch(err){
-    setSyncStatus('error','Delete failed');
-  }
+  }catch(err){setSyncStatus('error','Delete failed');}
 }
 
 function makeBars(data,maxVal,colors,el){
   if(!data.length){el.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';return;}
-  el.innerHTML=data.map((d,i)=>`<div class="bar-item"><div class="bar-label"><span style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d[0]}">${d[0]}</span><span>${d[1]}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/maxVal*100)}%;background:${colors[i%colors.length]}"></div></div></div>`).join('');
+  el.innerHTML=data.map((d,i)=>'<div class="bar-item"><div class="bar-label"><span style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+d[0]+'">'+d[0]+'</span><span>'+d[1]+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(d[1]/maxVal*100)+'%;background:'+colors[i%colors.length]+'"></div></div></div>').join('');
 }
 
 function renderOverview(){
@@ -394,22 +391,22 @@ function renderOverview(){
   if(!tot){ins.push({t:'info',ti:'No data yet',b:'Start logging concerns to see insights here.'});}
   else{
     const critP=Math.round(entries.filter(e=>e.risk==='crit').length/tot*100);
-    if(critP>=20)ins.push({t:'danger',ti:`${critP}% of concerns are critical`,b:'More than 1 in 5 are resignation-level. Immediate action needed.'});
+    if(critP>=20)ins.push({t:'danger',ti:critP+'% of concerns are critical',b:'More than 1 in 5 are resignation-level. Immediate action needed.'});
     const cc={};entries.forEach(e=>{cc[e.category]=(cc[e.category]||0)+1;});
     const topC=Object.entries(cc).sort((a,b)=>b[1]-a[1])[0];
-    if(topC&&topC[1]>=2)ins.push({t:'warn',ti:`"${topC[0]}" is your top repeating theme`,b:`Flagged ${topC[1]} times — systemic issue, not individual. Needs a structural fix.`});
+    if(topC&&topC[1]>=2)ins.push({t:'warn',ti:'"'+topC[0]+'" is your top repeating theme',b:'Flagged '+topC[1]+' times \u2014 systemic issue, not individual. Needs a structural fix.'});
     const dr={};entries.forEach(e=>{if(!dr[e.dept])dr[e.dept]={t:0,s:0};dr[e.dept].t++;dr[e.dept].s+=rs(e.risk);});
     const rk=Object.entries(dr).sort((a,b)=>(b[1].s/b[1].t)-(a[1].s/a[1].t))[0];
-    if(rk)ins.push({t:'warn',ti:`${rk[0]} has highest average risk score`,b:`Risk weight: ${(rk[1].s/rk[1].t).toFixed(1)}/4. Review manager relationships and team health here first.`});
+    if(rk)ins.push({t:'warn',ti:rk[0]+' has highest average risk score',b:'Risk weight: '+(rk[1].s/rk[1].t).toFixed(1)+'/4. Review manager relationships and team health here first.'});
     const rep=Object.entries(nc).filter(v=>v[1]>=3);
-    if(rep.length)ins.push({t:'danger',ti:`${rep.length} employee(s) flagged 3+ times`,b:`${rep.map(v=>v[0]).join(', ')} — recurring signals suggest unresolved root issues.`});
-    if(!ins.length)ins.push({t:'ok',ti:'No major patterns detected yet',b:'Keep logging consistently — patterns emerge after 5+ entries.'});
+    if(rep.length)ins.push({t:'danger',ti:rep.length+' employee(s) flagged 3+ times',b:rep.map(v=>v[0]).join(', ')+' \u2014 recurring signals suggest unresolved root issues.'});
+    if(!ins.length)ins.push({t:'ok',ti:'No major patterns detected yet',b:'Keep logging consistently \u2014 patterns emerge after 5+ entries.'});
   }
-  document.getElementById('ov-insights').innerHTML=ins.map(i=>`<div class="ibox ${i.t}"><div class="ititle">${i.ti}</div><div class="ibody">${i.b}</div></div>`).join('');
+  document.getElementById('ov-insights').innerHTML=ins.map(i=>'<div class="ibox '+i.t+'"><div class="ititle">'+i.ti+'</div><div class="ibody">'+i.b+'</div></div>').join('');
   const rc={crit:0,high:0,med:0,low:0};entries.forEach(e=>{if(rc[e.risk]!==undefined)rc[e.risk]++;});
   const rd=Object.entries(rc).map(([k,v])=>[RL[k],v]);
   const rmx=Math.max(...rd.map(d=>d[1]),1);
-  document.getElementById('ov-rb').innerHTML=rd.map((d,i)=>`<div class="bar-item"><div class="bar-label"><span>${d[0]}</span><span>${d[1]}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/rmx*100)}%;background:${Object.values(RC)[i]}"></div></div></div>`).join('');
+  document.getElementById('ov-rb').innerHTML=rd.map((d,i)=>'<div class="bar-item"><div class="bar-label"><span>'+d[0]+'</span><span>'+d[1]+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(d[1]/rmx*100)+'%;background:'+Object.values(RC)[i]+'"></div></div></div>').join('');
   const catC={};entries.forEach(e=>{catC[e.category]=(catC[e.category]||0)+1;});
   const cats=Object.entries(catC).sort((a,b)=>b[1]-a[1]).slice(0,6);
   makeBars(cats,cats[0]?cats[0][1]:1,BC,document.getElementById('ov-cb'));
@@ -432,7 +429,7 @@ function renderPatterns(){
   makeBars(cats,cats[0]?cats[0][1]:1,BC,document.getElementById('pt-cb'));
   const tenR={};entries.forEach(e=>{const t=e.tenure||'Unknown';if(!tenR[t])tenR[t]={total:0,score:0};tenR[t].total++;tenR[t].score+=rs(e.risk);});
   const tenD=Object.entries(tenR).map(([k,v])=>[k,parseFloat((v.score/v.total).toFixed(1))]).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('pt-ten').innerHTML=tenD.length?tenD.map(d=>`<div class="bar-item"><div class="bar-label"><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d[0]}</span><span>avg ${d[1]}/4</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/4*100)}%;background:${d[1]>=3?'#C0392B':d[1]>=2?'#D85A30':'#639922'}"></div></div></div>`).join(''):'<div class="empty" style="padding:0.75rem 0">No data yet</div>';
+  document.getElementById('pt-ten').innerHTML=tenD.length?tenD.map(d=>'<div class="bar-item"><div class="bar-label"><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+d[0]+'</span><span>avg '+d[1]+'/4</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(d[1]/4*100)+'%;background:'+(d[1]>=3?'#C0392B':d[1]>=2?'#D85A30':'#639922')+'"></div></div></div>').join(''):'<div class="empty" style="padding:0.75rem 0">No data yet</div>';
   const srcC={};entries.forEach(e=>{const s=e.source||'Unknown';srcC[s]=(srcC[s]||0)+1;});
   const srcD=Object.entries(srcC).sort((a,b)=>b[1]-a[1]);
   makeBars(srcD,srcD[0]?srcD[0][1]:1,BC,document.getElementById('pt-src'));
@@ -442,26 +439,26 @@ function renderPatterns(){
   if(!cats2.length){hEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';return;}
   const hD={};entries.forEach(e=>{const k=e.category+'__'+e.risk;hD[k]=(hD[k]||0)+1;});
   const maxH=Math.max(...Object.values(hD),1);
-  hEl.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed"><tr><td style="width:150px;padding:4px;color:var(--color-text-secondary)"></td>${risks.map(r=>`<th style="padding:6px 4px;text-align:center;color:var(--color-text-secondary);font-weight:500">${RL[r]}</th>`).join('')}</tr>${cats2.map(cat=>`<tr><td style="padding:6px 4px;color:var(--color-text-secondary);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${cat}">${cat}</td>${risks.map(r=>{const v=hD[cat+'__'+r]||0;const alpha=v>0?0.15+0.7*(v/maxH):0;return `<td style="padding:4px;text-align:center"><div style="background:${RC[r]};opacity:${alpha.toFixed(2)};border-radius:4px;height:26px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:500;color:var(--color-text-primary);opacity:${v>0?1:0}">${v||''}</span></div></td>`;}).join('')}</tr>`).join('')}</table></div>`;
+  hEl.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed"><tr><td style="width:150px;padding:4px;color:#666"></td>'+risks.map(r=>'<th style="padding:6px 4px;text-align:center;color:#666;font-weight:500">'+RL[r]+'</th>').join('')+'</tr>'+cats2.map(cat=>'<tr><td style="padding:6px 4px;color:#666;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+cat+'">'+cat+'</td>'+risks.map(r=>{const v=hD[cat+'__'+r]||0;const alpha=v>0?0.15+0.7*(v/maxH):0;return '<td style="padding:4px;text-align:center"><div style="background:'+RC[r]+';opacity:'+alpha.toFixed(2)+';border-radius:4px;height:26px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:500;color:#111;opacity:'+(v>0?1:0)+'">'+( v||'')+'</span></div></td>';}).join('')+'</tr>').join('')+'</table></div>';
 }
 
 function renderPeople(){
   const nc={};const nr={};const ne={};
   entries.forEach(e=>{nc[e.name]=(nc[e.name]||0)+1;if(!nr[e.name]||rs(e.risk)>rs(nr[e.name]))nr[e.name]=e.risk;if(!ne[e.name])ne[e.name]=[];ne[e.name].push(e);});
   const reps=Object.entries(nc).filter(([,v])=>v>=2).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('pw-rep').innerHTML=reps.length?reps.map(([name,count])=>{const last=ne[name][0];return `<div class="flagrow"><div><div class="ename">${name} <span class="badge bred">${count}x logged</span></div><div class="emeta">${last.dept}${last.role?' · '+last.role:''}</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px">Latest: ${last.category} — ${last.date}</div></div><span class="badge b${nr[name]}">${RL[nr[name]]}</span></div>`;}).join(''):'<div class="empty" style="padding:0.75rem 0">No repeat concerns yet.</div>';
+  document.getElementById('pw-rep').innerHTML=reps.length?reps.map(([name,count])=>{const last=ne[name][0];return '<div class="flagrow"><div><div class="ename">'+name+' <span class="badge bred">'+count+'x logged</span></div><div class="emeta">'+last.dept+(last.role?' &middot; '+last.role:'')+'</div><div style="font-size:11px;color:#888;margin-top:3px">Latest: '+last.category+' \u2014 '+last.date+'</div></div><span class="badge b'+nr[name]+'">'+RL[nr[name]]+'</span></div>';}).join(''):'<div class="empty" style="padding:0.75rem 0">No repeat concerns yet.</div>';
   const wl=entries.filter(e=>e.risk==='high'||e.risk==='crit').sort((a,b)=>rs(b.risk)-rs(a.risk));
-  document.getElementById('pw-wl').innerHTML=wl.length?wl.map(e=>`<div class="flagrow"><div><div class="ename">${e.name}</div><div class="emeta">${e.dept}${e.role?' · '+e.role:''}${e.tenure?' · '+e.tenure:''}</div><div class="enotes">${e.category} — ${String(e.notes).substring(0,90)}${String(e.notes).length>90?'...':''}</div>${e.followup?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px"><i class="ti ti-calendar" style="font-size:11px" aria-hidden="true"></i> Follow-up: ${e.followup}</div>`:''}</div><span class="badge b${e.risk}">${RL[e.risk]}</span></div>`).join(''):'<div class="empty" style="padding:0.75rem 0">No high/critical entries yet.</div>';
+  document.getElementById('pw-wl').innerHTML=wl.length?wl.map(e=>'<div class="flagrow"><div><div class="ename">'+e.name+'</div><div class="emeta">'+e.dept+(e.role?' &middot; '+e.role:'')+(e.tenure?' &middot; '+e.tenure:'')+'</div><div class="enotes">'+e.category+' \u2014 '+String(e.notes).substring(0,90)+(String(e.notes).length>90?'...':'')+'</div>'+(e.followup?'<div style="font-size:11px;color:#888;margin-top:3px">Follow-up: '+e.followup+'</div>':'')+'</div><span class="badge b'+e.risk+'">'+RL[e.risk]+'</span></div>').join(''):'<div class="empty" style="padding:0.75rem 0">No high/critical entries yet.</div>';
 }
 
 function renderDepts(){
   const dd={};entries.forEach(e=>{if(!dd[e.dept])dd[e.dept]={total:0,score:0,cats:{}};dd[e.dept].total++;dd[e.dept].score+=rs(e.risk);dd[e.dept].cats[e.category]=(dd[e.dept].cats[e.category]||0)+1;});
   const depts=Object.entries(dd).sort((a,b)=>(b[1].score/b[1].total)-(a[1].score/a[1].total));
-  document.getElementById('dh-b').innerHTML=depts.length?depts.map(([dept,d])=>{const avg=d.score/d.total;const pct=Math.round(avg/4*100);const color=avg>=3?'#C0392B':avg>=2?'#D85A30':avg>=1.5?'#BA7517':'#639922';return `<div class="bar-item"><div class="bar-label"><span>${dept}</span><span style="color:${color}">${avg.toFixed(1)}/4 · ${d.total} concern${d.total>1?'s':''}</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;}).join(''):'<div class="empty" style="padding:0.75rem 0">No data yet</div>';
+  document.getElementById('dh-b').innerHTML=depts.length?depts.map(([dept,d])=>{const avg=d.score/d.total;const pct=Math.round(avg/4*100);const color=avg>=3?'#C0392B':avg>=2?'#D85A30':avg>=1.5?'#BA7517':'#639922';return '<div class="bar-item"><div class="bar-label"><span>'+dept+'</span><span style="color:'+color+'">'+avg.toFixed(1)+'/4 &middot; '+d.total+' concern'+(d.total>1?'s':'')+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div></div>';}).join(''):'<div class="empty" style="padding:0.75rem 0">No data yet</div>';
   const allCats=[...new Set(entries.map(e=>e.category))].slice(0,5);
   const tEl=document.getElementById('dh-t');
   if(!allCats.length){tEl.innerHTML='';return;}
-  tEl.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:auto"><tr><th style="text-align:left;padding:6px 4px;color:var(--color-text-secondary);font-weight:500;min-width:100px">Dept</th>${allCats.map(c=>`<th style="padding:6px 4px;color:var(--color-text-secondary);font-weight:500;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c}">${c.split(' ').slice(0,2).join(' ')}</th>`).join('')}</tr>${depts.map(([dept,d])=>`<tr style="border-top:0.5px solid var(--color-border-tertiary)"><td style="padding:6px 4px;font-size:12px;color:var(--color-text-primary)">${dept}</td>${allCats.map(c=>{const v=d.cats[c]||0;return `<td style="text-align:center;padding:6px 4px"><span style="color:${v>0?'var(--color-text-primary)':'var(--color-text-tertiary)'}">${v>0?v:'—'}</span></td>`;}).join('')}</tr>`).join('')}</table></div>`;
+  tEl.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:auto"><tr><th style="text-align:left;padding:6px 4px;color:#666;font-weight:500;min-width:100px">Dept</th>'+allCats.map(c=>'<th style="padding:6px 4px;color:#666;font-weight:500;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c+'">'+c.split(' ').slice(0,2).join(' ')+'</th>').join('')+'</tr>'+depts.map(([dept,d])=>'<tr style="border-top:1px solid #f0f0f0"><td style="padding:6px 4px;font-size:12px;color:#111">'+dept+'</td>'+allCats.map(c=>{const v=d.cats[c]||0;return '<td style="text-align:center;padding:6px 4px"><span style="color:'+(v>0?'#111':'#ccc')+'">'+(v>0?v:'\u2014')+'</span></td>';}).join('')+'</tr>').join('')+'</table></div>';
 }
 
 function renderEntries(){
@@ -469,12 +466,12 @@ function renderEntries(){
   const depts=[...new Set(entries.map(e=>e.dept))].filter(Boolean);
   const cats=[...new Set(entries.map(e=>e.category))].filter(Boolean);
   const dSel=document.getElementById('fe-d');const curD=dSel.value;
-  dSel.innerHTML='<option value="">All departments</option>'+depts.map(d=>`<option value="${d}"${d===curD?' selected':''}>${d}</option>`).join('');
+  dSel.innerHTML='<option value="">All departments</option>'+depts.map(d=>'<option value="'+d+'"'+(d===curD?' selected':'')+'>'+d+'</option>').join('');
   const cSel=document.getElementById('fe-c');const curC=cSel.value;
-  cSel.innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option value="${c}"${c===curC?' selected':''}>${c}</option>`).join('');
+  cSel.innerHTML='<option value="">All categories</option>'+cats.map(c=>'<option value="'+c+'"'+(c===curC?' selected':'')+'>'+c+'</option>').join('');
   const filtered=entries.filter(e=>(!rF||e.risk===rF)&&(!dF||e.dept===dF)&&(!cF||e.category===cF));
   document.getElementById('entries-list').innerHTML=filtered.length
-    ?`<div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:0 1rem">`+filtered.map(e=>`<div class="erow"><span class="badge b${e.risk}">${RL[e.risk]}</span><div><div class="ename">${e.name} <span class="badge binfo" style="font-size:10px">${e.dept}</span></div><div class="emeta">${e.role||''}${e.role&&e.tenure?' · ':''}${e.tenure||''}${(e.role||e.tenure)&&e.category?' · ':''}${e.category}</div><div class="enotes">${e.notes}</div>${e.source?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px"><i class="ti ti-message" style="font-size:11px" aria-hidden="true"></i> ${e.source}</div>`:''} ${e.action?`<div style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-arrow-right" style="font-size:11px" aria-hidden="true"></i> ${e.action}</div>`:''} ${e.followup?`<div style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-calendar" style="font-size:11px" aria-hidden="true"></i> Follow-up: ${e.followup}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:11px;color:var(--color-text-tertiary)">${e.date}</span><button class="delbtn" onclick="deleteEntry('${e.id}')" aria-label="Delete"><i class="ti ti-trash" aria-hidden="true"></i></button></div></div>`).join('')+'</div>'
+    ?'<div style="border:1px solid #f0f0f0;border-radius:12px;padding:0 1rem">'+filtered.map(e=>'<div class="erow"><span class="badge b'+e.risk+'">'+RL[e.risk]+'</span><div><div class="ename">'+e.name+' <span class="badge binfo" style="font-size:10px">'+e.dept+'</span></div><div class="emeta">'+(e.role||'')+(e.role&&e.tenure?' &middot; ':'')+( e.tenure||'')+((e.role||e.tenure)&&e.category?' &middot; ':'')+e.category+'</div><div class="enotes">'+e.notes+'</div>'+(e.source?'<div style="font-size:11px;color:#888;margin-top:3px">'+e.source+'</div>':'')+(e.action?'<div style="font-size:11px;color:#888">\u2192 '+e.action+'</div>':'')+(e.followup?'<div style="font-size:11px;color:#888">Follow-up: '+e.followup+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:11px;color:#aaa">'+e.date+'</span><button class="delbtn" onclick="deleteEntry(\''+e.id+'\')" title="Delete">&times;</button></div></div>').join('')+'</div>'
     :'<div class="empty">No entries match the selected filters.</div>';
 }
 
@@ -502,22 +499,22 @@ async function runAI(mode){
   const btn=document.getElementById(btnId);
   const resEl=document.getElementById(resId);
   btn.disabled=true;
-  btn.innerHTML=`<i class="ti ti-loader-2" aria-hidden="true"></i> Analyzing...`;
-  resEl.innerHTML=`<div class="ibox info"><div class="ititle">Generating analysis...</div><div class="ibody">This takes a few seconds.</div></div>`;
+  btn.textContent='Analyzing...';
+  resEl.innerHTML='<div class="ibox info"><div class="ititle">Generating analysis...</div><div class="ibody">This takes a few seconds.</div></div>';
   const summary=buildSummary();
   const prompt=mode==='overview'
-    ?`You are an HR analytics advisor. I am Lyka, HR Officer at Top Bliss Solutions Inc. (TBSI). Analyze this people concern data and give me:\n1. Top 3 retention risks I should address urgently\n2. Which departments need immediate attention and why\n3. What the data tells me about root causes\n4. My top 3 action priorities for this week\n\nData: ${JSON.stringify(summary)}\n\nBe direct, specific, and practical. No fluff. Format with clear numbered points.`
-    :`You are an HR analytics advisor. I am Lyka, HR Officer at Top Bliss Solutions Inc. (TBSI). Interpret these people concern patterns and tell me:\n1. What systemic patterns are visible — what keeps repeating and why it matters\n2. Which tenure groups or departments are most vulnerable and what that signals\n3. What the concern categories tell me about culture or management gaps\n4. Specific structural fixes or interventions I should raise with leadership\n\nData: ${JSON.stringify(summary)}\n\nBe direct and specific. Format with clear numbered points.`;
+    ?'You are an HR analytics advisor. I am Lyka, HR Officer at Top Bliss Solutions Inc. (TBSI). Analyze this people concern data and give me:\n1. Top 3 retention risks I should address urgently\n2. Which departments need immediate attention and why\n3. What the data tells me about root causes\n4. My top 3 action priorities for this week\n\nData: '+JSON.stringify(summary)+'\n\nBe direct, specific, and practical. No fluff. Format with clear numbered points.'
+    :'You are an HR analytics advisor. I am Lyka, HR Officer at Top Bliss Solutions Inc. (TBSI). Interpret these people concern patterns and tell me:\n1. What systemic patterns are visible\n2. Which tenure groups or departments are most vulnerable\n3. What the concern categories tell me about culture or management gaps\n4. Specific structural fixes or interventions I should raise with leadership\n\nData: '+JSON.stringify(summary)+'\n\nBe direct and specific. Format with clear numbered points.';
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
     const data=await resp.json();
     const text=data.content&&data.content[0]&&data.content[0].text?data.content[0].text:'No response received.';
-    resEl.innerHTML=`<div class="ai-result">${text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+    resEl.innerHTML='<div class="ai-result">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>';
   }catch(err){
-    resEl.innerHTML=`<div class="ibox danger"><div class="ititle">Analysis failed</div><div class="ibody">Could not connect. Check your connection and try again.</div></div>`;
+    resEl.innerHTML='<div class="ibox danger"><div class="ititle">Analysis failed</div><div class="ibody">Could not connect. Try again.</div></div>';
   }
   btn.disabled=false;
-  btn.innerHTML=mode==='overview'?'<i class="ti ti-brain" aria-hidden="true"></i> Get AI analysis':'<i class="ti ti-sparkles" aria-hidden="true"></i> Interpret patterns';
+  btn.textContent=mode==='overview'?'\u{1F9E0} Get AI analysis':'\u2728 Interpret patterns';
 }
 
 async function init(){
@@ -527,15 +524,13 @@ async function init(){
     renderOverview();
     await migrateLocalStorage();
   }else{
-    try{
-      const v2=localStorage.getItem('tbsi_concerns_v2');
-      const v1=localStorage.getItem('tbsi_concerns');
-      entries=JSON.parse(v2||v1||'[]');
-    }catch(e){entries=[];}
-    setSyncStatus('error','Sheet unavailable — using local data');
+    try{const v2=localStorage.getItem('tbsi_concerns_v2');const v1=localStorage.getItem('tbsi_concerns');entries=JSON.parse(v2||v1||'[]');}catch(e){entries=[];}
+    setSyncStatus('error','Sheet unavailable \u2014 using local data');
     renderOverview();
   }
 }
 
 init();
 </script>
+</body>
+</html>
