@@ -82,7 +82,6 @@ textarea{resize:vertical;min-height:76px}
 .ibox.info .ititle{color:var(--color-text-info)}
 .ibody{font-size:12px;color:var(--color-text-secondary)}
 .ai-result{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px 16px;margin-top:12px;font-size:13px;color:var(--color-text-primary);line-height:1.6;white-space:pre-wrap}
-.loading-overlay{text-align:center;padding:2.5rem;color:var(--color-text-secondary);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:10px}
 .migrate-box{background:#FAEEDA;border-left:3px solid #BA7517;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#854F0B;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .migrate-btn{padding:5px 12px;font-size:11px;font-weight:500;border-radius:var(--border-radius-md);background:#BA7517;color:#fff;border:none;cursor:pointer;white-space:nowrap}
 </style>
@@ -93,7 +92,7 @@ textarea{resize:vertical;min-height:76px}
   <div class="hdiv"></div>
   <div class="htxt"><div class="ht">People Risk Tracker</div><div class="hs">Top Bliss Solutions Inc. · HR</div></div>
   <div class="sync-status">
-    <div class="sync-dot" id="sync-dot"></div>
+    <div class="sync-dot syncing" id="sync-dot"></div>
     <span class="sync-label" id="sync-label">Connecting...</span>
   </div>
 </div>
@@ -107,7 +106,6 @@ textarea{resize:vertical;min-height:76px}
 </div>
 <div class="body">
 
-<!-- LOG -->
 <div class="panel active" id="panel-log">
   <div id="migrate-notice"></div>
   <div class="fg">
@@ -186,7 +184,6 @@ textarea{resize:vertical;min-height:76px}
   <button class="savebtn" id="save-btn" onclick="submitEntry()">Save concern entry</button>
 </div>
 
-<!-- OVERVIEW -->
 <div class="panel" id="panel-overview">
   <div class="metrics-row">
     <div class="mc"><div class="mc-label">Total logged</div><div class="mc-val" id="ov-t">0</div><div class="mc-sub">all concerns</div></div>
@@ -200,13 +197,12 @@ textarea{resize:vertical;min-height:76px}
     <div class="card"><div class="ctitle"><i class="ti ti-tag" aria-hidden="true"></i>Top concern themes</div><div id="ov-cb"></div></div>
   </div>
   <div class="card"><div class="ctitle"><i class="ti ti-trending-up" aria-hidden="true"></i>Monthly trend</div>
-    <div style="position:relative;width:100%;height:160px"><canvas id="trend-chart" role="img" aria-label="Monthly trend of logged concerns">Monthly data.</canvas></div>
+    <div style="position:relative;width:100%;height:160px"><canvas id="trend-chart" role="img" aria-label="Monthly trend">Monthly data.</canvas></div>
   </div>
   <button class="aibtn" id="ai-ov-btn" onclick="runAI('overview')"><i class="ti ti-brain" aria-hidden="true"></i> Get AI analysis</button>
   <div id="ai-ov-result"></div>
 </div>
 
-<!-- PATTERNS -->
 <div class="panel" id="panel-patterns">
   <div class="card"><div class="ctitle"><i class="ti ti-chart-bar" aria-hidden="true"></i>Concern categories</div><div id="pt-cb"></div></div>
   <div class="grid2">
@@ -218,13 +214,11 @@ textarea{resize:vertical;min-height:76px}
   <div id="ai-pt-result"></div>
 </div>
 
-<!-- PEOPLE WATCH -->
 <div class="panel" id="panel-people">
   <div class="card" style="margin-bottom:1rem"><div class="ctitle"><i class="ti ti-repeat" aria-hidden="true"></i>Repeat concern flags</div><div id="pw-rep"></div></div>
   <div class="card"><div class="ctitle"><i class="ti ti-alert-triangle" aria-hidden="true"></i>Critical & high risk — watchlist</div><div id="pw-wl"></div></div>
 </div>
 
-<!-- DEPT HEALTH -->
 <div class="panel" id="panel-depts">
   <div class="card"><div class="ctitle"><i class="ti ti-activity" aria-hidden="true"></i>Department health scores</div>
     <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:12px">Weighted risk index — higher = more at-risk</p>
@@ -233,7 +227,6 @@ textarea{resize:vertical;min-height:76px}
   <div class="card"><div class="ctitle"><i class="ti ti-table" aria-hidden="true"></i>Concerns by dept × category</div><div id="dh-t"></div></div>
 </div>
 
-<!-- ALL ENTRIES -->
 <div class="panel" id="panel-entries">
   <div class="frow">
     <select class="fsel" id="fe-r" onchange="renderEntries()"><option value="">All risk levels</option><option value="crit">Critical</option><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select>
@@ -249,7 +242,7 @@ textarea{resize:vertical;min-height:76px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const SHEET_URL='https://script.google.com/macros/s/AKfycbwS8Zy-AxxZTyxJ9Ye2_Tv3keUYXb4iobzatQk4nw9mNtDkjP_eLgwJeCe2aomJ5Cq3Uw/exec';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbyILPl9ZWiHPF3UOUq2sJDL9cjPsNHtY0WVrTIza3I2BobyyJuuMqI_EFDuEISuFB68PQ/exec';
 let entries=[];
 let selRisk='';
 let tChart=null;
@@ -288,18 +281,25 @@ function selR(lvl,btn){
 async function loadFromSheets(){
   setSyncStatus('syncing','Syncing...');
   try{
-    const resp=await fetch(SHEET_URL);
-    const data=await resp.json();
+    const resp=await fetch(SHEET_URL+'?t='+Date.now());
+    const text=await resp.text();
+    let data;
+    try{data=JSON.parse(text);}catch(e){
+      setSyncStatus('error','Invalid response from Sheet');
+      return false;
+    }
     if(Array.isArray(data)){
       entries=data.map(e=>({...e,id:String(e.id)}));
-      setSyncStatus('ok',`Synced · ${entries.length} records`);
+      setSyncStatus('ok',`Synced · ${entries.length} record${entries.length!==1?'s':''}`);
       renderEntries();
       return true;
     }
+    setSyncStatus('error','Unexpected response');
+    return false;
   }catch(err){
-    setSyncStatus('error','Sync failed');
+    setSyncStatus('error','Sheet unavailable');
+    return false;
   }
-  return false;
 }
 
 async function migrateLocalStorage(){
@@ -310,7 +310,6 @@ async function migrateLocalStorage(){
     local=JSON.parse(v2||v1||'[]');
   }catch(e){local=[];}
   if(!local.length)return;
-
   const notice=document.getElementById('migrate-notice');
   notice.innerHTML=`<div class="migrate-box"><span><i class="ti ti-database" aria-hidden="true" style="font-size:13px;margin-right:4px"></i> Found <strong>${local.length} record(s)</strong> saved locally. Migrate them to Google Sheets?</span><button class="migrate-btn" onclick="doMigrate()">Migrate now</button></div>`;
   window._localToMigrate=local;
@@ -320,7 +319,7 @@ async function doMigrate(){
   const local=window._localToMigrate||[];
   if(!local.length)return;
   const notice=document.getElementById('migrate-notice');
-  notice.innerHTML=`<div class="migrate-box"><span><i class="ti ti-loader-2" aria-hidden="true" style="font-size:13px;margin-right:4px"></i> Migrating ${local.length} records to Google Sheets...</span></div>`;
+  notice.innerHTML=`<div class="migrate-box"><span><i class="ti ti-loader-2" aria-hidden="true" style="font-size:13px;margin-right:4px"></i> Migrating ${local.length} records...</span></div>`;
   setSyncStatus('syncing','Migrating...');
   let done=0;
   for(const entry of local){
@@ -330,7 +329,7 @@ async function doMigrate(){
     }catch(e){}
   }
   try{localStorage.removeItem('tbsi_concerns_v2');localStorage.removeItem('tbsi_concerns');}catch(e){}
-  notice.innerHTML=`<div class="ibox ok" style="margin-bottom:1rem"><div class="ititle">Migration complete</div><div class="ibody">${done} records moved to Google Sheets. Local storage cleared.</div></div>`;
+  notice.innerHTML=`<div class="ibox ok" style="margin-bottom:1rem"><div class="ititle">Migration complete</div><div class="ibody">${done} records moved to Google Sheets.</div></div>`;
   await loadFromSheets();
   renderOverview();
 }
@@ -344,16 +343,23 @@ async function submitEntry(){
   btn.disabled=true;btn.textContent='Saving...';
   setSyncStatus('syncing','Saving...');
   try{
-    await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'save',entry}),headers:{'Content-Type':'application/json'}});
-    entries.unshift(entry);
-    setSyncStatus('ok',`Synced · ${entries.length} records`);
-    ['fn','fd','fr','ft','fc','fs','fno','fa','ff'].forEach(id=>document.getElementById(id).value='');
-    selRisk='';
-    document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
-    sw('overview');
+    const resp=await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'save',entry}),headers:{'Content-Type':'application/json'}});
+    const text=await resp.text();
+    let result;
+    try{result=JSON.parse(text);}catch(e){result={status:'ok'};}
+    if(result.status==='ok'||resp.ok){
+      entries.unshift(entry);
+      setSyncStatus('ok',`Synced · ${entries.length} record${entries.length!==1?'s':''}`);
+      ['fn','fd','fr','ft','fc','fs','fno','fa','ff'].forEach(id=>document.getElementById(id).value='');
+      selRisk='';
+      document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
+      sw('overview');
+    } else {
+      throw new Error('Save failed');
+    }
   }catch(err){
     setSyncStatus('error','Save failed — check connection');
-    alert('Could not save to Google Sheets. Check your connection and try again.');
+    alert('Could not save to Google Sheets. Please check your connection and try again.');
   }
   btn.disabled=false;btn.textContent='Save concern entry';
 }
@@ -364,7 +370,7 @@ async function deleteEntry(id){
   try{
     await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'delete',id:String(id)}),headers:{'Content-Type':'application/json'}});
     entries=entries.filter(e=>String(e.id)!==String(id));
-    setSyncStatus('ok',`Synced · ${entries.length} records`);
+    setSyncStatus('ok',`Synced · ${entries.length} record${entries.length!==1?'s':''}`);
     renderEntries();
   }catch(err){
     setSyncStatus('error','Delete failed');
@@ -426,8 +432,7 @@ function renderPatterns(){
   makeBars(cats,cats[0]?cats[0][1]:1,BC,document.getElementById('pt-cb'));
   const tenR={};entries.forEach(e=>{const t=e.tenure||'Unknown';if(!tenR[t])tenR[t]={total:0,score:0};tenR[t].total++;tenR[t].score+=rs(e.risk);});
   const tenD=Object.entries(tenR).map(([k,v])=>[k,parseFloat((v.score/v.total).toFixed(1))]).sort((a,b)=>b[1]-a[1]);
-  const tEl=document.getElementById('pt-ten');
-  tEl.innerHTML=tenD.length?tenD.map(d=>`<div class="bar-item"><div class="bar-label"><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d[0]}</span><span>avg ${d[1]}/4</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/4*100)}%;background:${d[1]>=3?'#C0392B':d[1]>=2?'#D85A30':'#639922'}"></div></div></div>`).join(''):'<div class="empty" style="padding:0.75rem 0">No data yet</div>';
+  document.getElementById('pt-ten').innerHTML=tenD.length?tenD.map(d=>`<div class="bar-item"><div class="bar-label"><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d[0]}</span><span>avg ${d[1]}/4</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d[1]/4*100)}%;background:${d[1]>=3?'#C0392B':d[1]>=2?'#D85A30':'#639922'}"></div></div></div>`).join(''):'<div class="empty" style="padding:0.75rem 0">No data yet</div>';
   const srcC={};entries.forEach(e=>{const s=e.source||'Unknown';srcC[s]=(srcC[s]||0)+1;});
   const srcD=Object.entries(srcC).sort((a,b)=>b[1]-a[1]);
   makeBars(srcD,srcD[0]?srcD[0][1]:1,BC,document.getElementById('pt-src'));
@@ -469,7 +474,7 @@ function renderEntries(){
   cSel.innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option value="${c}"${c===curC?' selected':''}>${c}</option>`).join('');
   const filtered=entries.filter(e=>(!rF||e.risk===rF)&&(!dF||e.dept===dF)&&(!cF||e.category===cF));
   document.getElementById('entries-list').innerHTML=filtered.length
-    ?`<div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:0 1rem">`+filtered.map(e=>`<div class="erow"><span class="badge b${e.risk}">${RL[e.risk]}</span><div><div class="ename">${e.name} <span class="badge binfo" style="font-size:10px">${e.dept}</span></div><div class="emeta">${e.role||''}${e.role&&e.tenure?' · ':''}${e.tenure||''}${(e.role||e.tenure)&&e.category?' · ':''}${e.category}</div><div class="enotes">${e.notes}</div>${e.source?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px"><i class="ti ti-message" style="font-size:11px" aria-hidden="true"></i> ${e.source}</div>`:''} ${e.action?`<div style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-arrow-right" style="font-size:11px" aria-hidden="true"></i> ${e.action}</div>`:''} ${e.followup?`<div style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-calendar" style="font-size:11px" aria-hidden="true"></i> Follow-up: ${e.followup}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:11px;color:var(--color-text-tertiary)">${e.date}</span><button class="delbtn" onclick="deleteEntry('${e.id}')" aria-label="Delete entry"><i class="ti ti-trash" aria-hidden="true"></i></button></div></div>`).join('')+'</div>'
+    ?`<div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:0 1rem">`+filtered.map(e=>`<div class="erow"><span class="badge b${e.risk}">${RL[e.risk]}</span><div><div class="ename">${e.name} <span class="badge binfo" style="font-size:10px">${e.dept}</span></div><div class="emeta">${e.role||''}${e.role&&e.tenure?' · ':''}${e.tenure||''}${(e.role||e.tenure)&&e.category?' · ':''}${e.category}</div><div class="enotes">${e.notes}</div>${e.source?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px"><i class="ti ti-message" style="font-size:11px" aria-hidden="true"></i> ${e.source}</div>`:''} ${e.action?`<div style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-arrow-right" style="font-size:11px" aria-hidden="true"></i> ${e.action}</div>`:''} ${e.followup?`<div style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-calendar" style="font-size:11px" aria-hidden="true"></i> Follow-up: ${e.followup}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:11px;color:var(--color-text-tertiary)">${e.date}</span><button class="delbtn" onclick="deleteEntry('${e.id}')" aria-label="Delete"><i class="ti ti-trash" aria-hidden="true"></i></button></div></div>`).join('')+'</div>'
     :'<div class="empty">No entries match the selected filters.</div>';
 }
 
@@ -521,7 +526,7 @@ async function init(){
   if(ok){
     renderOverview();
     await migrateLocalStorage();
-  } else {
+  }else{
     try{
       const v2=localStorage.getItem('tbsi_concerns_v2');
       const v1=localStorage.getItem('tbsi_concerns');
