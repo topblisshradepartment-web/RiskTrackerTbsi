@@ -209,7 +209,7 @@ textarea{resize:vertical;min-height:76px}
   <div class="card"><div class="ctitle">Monthly trend</div>
     <div style="position:relative;width:100%;height:160px"><canvas id="trend-chart"></canvas></div>
   </div>
-  <button class="aibtn" id="ai-ov-btn" onclick="runAI('overview')">&#129504; Get AI analysis</button>
+  <button class="aibtn" onclick="exportForAI('overview')">&#129504; Export for AI analysis</button>
   <div id="ai-ov-result"></div>
 </div>
 
@@ -220,7 +220,7 @@ textarea{resize:vertical;min-height:76px}
     <div class="card"><div class="ctitle">How concerns surface</div><div id="pt-src"></div></div>
   </div>
   <div class="card"><div class="ctitle">Category &times; risk heatmap</div><div id="pt-heat"></div></div>
-  <button class="aibtn" id="ai-pt-btn" onclick="runAI('patterns')">&#10024; Interpret patterns</button>
+  <button class="aibtn" onclick="exportForAI('patterns')">&#10024; Export for pattern analysis</button>
   <div id="ai-pt-result"></div>
 </div>
 
@@ -476,28 +476,77 @@ function buildSummary(){
   s.highRiskPeople=entries.filter(e=>e.risk==='high'||e.risk==='crit').map(e=>({name:e.name,dept:e.dept,risk:RL[e.risk],category:e.category}));
   return s;
 }
-async function runAI(mode){
+function exportForAI(mode){
   if(!entries.length){alert('No data logged yet. Add some concern entries first.');return;}
-  const btnId=mode==='overview'?'ai-ov-btn':'ai-pt-btn';
-  const resId=mode==='overview'?'ai-ov-result':'ai-pt-result';
-  const btn=document.getElementById(btnId);
-  const resEl=document.getElementById(resId);
-  btn.disabled=true;btn.textContent='Analyzing...';
-  resEl.innerHTML='<div class="ibox info"><div class="ititle">Generating analysis...</div><div class="ibody">This takes a few seconds.</div></div>';
-  const summary=buildSummary();
-  const prompt=mode==='overview'
-    ?'You are an HR analytics advisor. I am Lyka, HR Officer at Top Bliss Solutions Inc. (TBSI). Analyze this people concern data and give me:\n1. Top 3 retention risks I should address urgently\n2. Which departments need immediate attention and why\n3. What the data tells me about root causes\n4. My top 3 action priorities for this week\n\nData: '+JSON.stringify(summary)+'\n\nBe direct, specific, and practical. No fluff. Format with clear numbered points.'
-    :'You are an HR analytics advisor. I am Lyka, HR Officer at Top Bliss Solutions Inc. (TBSI). Interpret these people concern patterns and tell me:\n1. What systemic patterns are visible\n2. Which tenure groups or departments are most vulnerable\n3. What the concern categories tell me about culture or management gaps\n4. Specific structural fixes or interventions I should raise with leadership\n\nData: '+JSON.stringify(summary)+'\n\nBe direct and specific. Format with clear numbered points.';
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
-    const data=await resp.json();
-    const text=data.content&&data.content[0]&&data.content[0].text?data.content[0].text:'No response received.';
-    resEl.innerHTML='<div class="ai-result">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>';
-  }catch(err){
-    resEl.innerHTML='<div class="ibox danger"><div class="ititle">Analysis failed</div><div class="ibody">Could not connect. Try again.</div></div>';
+  const s=buildSummary();
+  const lines=[];
+  lines.push('=== TBSI PEOPLE RISK TRACKER — DATA EXPORT ===');
+  lines.push('Date: '+new Date().toLocaleDateString());
+  lines.push('Total concerns logged: '+s.total);
+  lines.push('');
+  lines.push('RISK BREAKDOWN:');
+  Object.entries(s.byRisk).forEach(([k,v])=>lines.push('  '+k.charAt(0).toUpperCase()+k.slice(1)+': '+v));
+  lines.push('');
+  lines.push('BY DEPARTMENT:');
+  Object.entries(s.byDept).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>lines.push('  '+k+': '+v+' concern'+(v!==1?'s':'')));
+  lines.push('');
+  lines.push('BY CONCERN CATEGORY:');
+  Object.entries(s.byCat).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>lines.push('  '+k+': '+v));
+  lines.push('');
+  lines.push('BY TENURE GROUP:');
+  Object.entries(s.byTenure).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>lines.push('  '+k+': '+v));
+  lines.push('');
+  lines.push('HOW CONCERNS WERE RAISED:');
+  Object.entries(s.bySource).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>lines.push('  '+k+': '+v));
+  if(s.repeats.length){
+    lines.push('');
+    lines.push('REPEAT FLAGS (2+ entries):');
+    s.repeats.forEach(r=>lines.push('  '+r.name+' ('+r.count+'x, highest risk: '+r.highestRisk+')'));
   }
-  btn.disabled=false;
-  btn.textContent=mode==='overview'?'\u{1F9E0} Get AI analysis':'\u2728 Interpret patterns';
+  if(s.highRiskPeople.length){
+    lines.push('');
+    lines.push('HIGH/CRITICAL RISK EMPLOYEES:');
+    s.highRiskPeople.forEach(p=>lines.push('  '+p.name+' | '+p.dept+' | '+p.risk+' | '+p.category));
+  }
+  lines.push('');
+  lines.push('--- FULL ENTRIES ---');
+  entries.forEach((e,i)=>{
+    lines.push('');
+    lines.push((i+1)+'. '+e.name+' | '+e.dept+(e.role?' | '+e.role:'')+(e.tenure?' | '+e.tenure:''));
+    lines.push('   Category: '+e.category+' | Risk: '+e.risk.toUpperCase()+(e.source?' | Via: '+e.source:''));
+    lines.push('   Date: '+e.date+(e.followup?' | Follow-up: '+e.followup:''));
+    lines.push('   Notes: '+e.notes);
+    if(e.action)lines.push('   Action: '+e.action);
+  });
+  lines.push('');
+  lines.push('=== END OF EXPORT ===');
+  lines.push('');
+  if(mode==='overview'){
+    lines.push('PROMPT FOR CLAUDE:');
+    lines.push('I am Lyka, HR Officer at Top Bliss Solutions Inc. (TBSI). Based on the data above, please give me:');
+    lines.push('1. Top 3 retention risks I should address urgently');
+    lines.push('2. Which departments need immediate attention and why');
+    lines.push('3. What the data tells me about root causes');
+    lines.push('4. My top 3 action priorities for this week');
+  } else {
+    lines.push('PROMPT FOR CLAUDE:');
+    lines.push('I am Lyka, HR Officer at Top Bliss Solutions Inc. (TBSI). Based on the data above, please:');
+    lines.push('1. Identify systemic patterns — what keeps repeating and why it matters');
+    lines.push('2. Tell me which tenure groups or departments are most vulnerable');
+    lines.push('3. Explain what the concern categories tell me about culture or management gaps');
+    lines.push('4. Give me specific structural fixes or interventions to raise with leadership');
+  }
+  const text=lines.join('\n');
+  const resId=mode==='overview'?'ai-ov-result':'ai-pt-result';
+  const resEl=document.getElementById(resId);
+
+  // Copy to clipboard
+  navigator.clipboard.writeText(text).then(()=>{
+    resEl.innerHTML='<div class="ibox ok"><div class="ititle">&#10003; Copied to clipboard!</div><div class="ibody">Your data summary has been copied. Go to <strong>claude.ai</strong>, open a new chat, and paste it. Claude will give you a full analysis.</div></div>';
+  }).catch(()=>{
+    // Fallback — show text in a box to manually copy
+    resEl.innerHTML='<div class="ibox info"><div class="ititle">Copy the text below and paste it into Claude.ai</div></div><textarea style="width:100%;height:200px;font-size:11px;font-family:monospace;margin-top:8px;padding:8px;border:1px solid #ddd;border-radius:8px;resize:vertical" readonly>'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</textarea>';
+  });
 }
 
 // INIT — load from local first, then try to sync sheet in background
