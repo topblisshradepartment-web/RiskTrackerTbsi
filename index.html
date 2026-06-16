@@ -107,12 +107,14 @@ textarea{resize:vertical;min-height:76px}
   </div>
 </div>
 <div class="tabs">
-  <button class="tab active" onclick="sw('log')">+ Log</button>
+  <button class="tab active" onclick="sw('log')">+ Log concern</button>
   <button class="tab" onclick="sw('overview')">Overview</button>
   <button class="tab" onclick="sw('patterns')">Patterns</button>
   <button class="tab" onclick="sw('people')">People watch</button>
   <button class="tab" onclick="sw('depts')">Dept health</button>
   <button class="tab" onclick="sw('entries')">All entries</button>
+  <button class="tab" style="border-left:1px solid rgba(255,255,255,0.1);margin-left:4px" onclick="sw('voice')">+ Log voice</button>
+  <button class="tab" onclick="sw('voicelist')">Voice entries</button>
 </div>
 <div class="body">
 
@@ -209,6 +211,21 @@ textarea{resize:vertical;min-height:76px}
   <div class="card"><div class="ctitle">Monthly trend</div>
     <div style="position:relative;width:100%;height:160px"><canvas id="trend-chart"></canvas></div>
   </div>
+  <!-- VOICE SUMMARY -->
+  <div style="margin-top:1.25rem;border-top:1px dashed #e5e5e5;padding-top:1.25rem">
+    <div style="font-size:11px;font-weight:500;color:#666;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px">&#127908; People voice summary</div>
+    <div class="metrics-row" id="ov-voice-metrics" style="margin-bottom:1rem">
+      <div class="mc" style="border-left:3px solid #1D9E75"><div class="mc-label">Voice entries</div><div class="mc-val" id="ov-vc" style="color:#1D9E75">0</div><div class="mc-sub">total logged</div></div>
+      <div class="mc" style="border-left:3px solid #639922"><div class="mc-label">Positive</div><div class="mc-val" id="ov-vpos" style="color:#639922">0</div><div class="mc-sub">feedback &amp; shoutouts</div></div>
+      <div class="mc" style="border-left:3px solid #378ADD"><div class="mc-label">Suggestions</div><div class="mc-val" id="ov-vsug" style="color:#378ADD">0</div><div class="mc-sub">ideas &amp; improvements</div></div>
+      <div class="mc" style="border-left:3px solid #7F77DD"><div class="mc-label">Needs</div><div class="mc-val" id="ov-vneed" style="color:#7F77DD">0</div><div class="mc-sub">employee needs</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="ctitle">Voice by type</div><div id="ov-vtype"></div></div>
+      <div class="card"><div class="ctitle">Voice by department</div><div id="ov-vdept"></div></div>
+    </div>
+    <div class="card" id="ov-vrecent-card"><div class="ctitle">Latest voice entries</div><div id="ov-vrecent"></div></div>
+  </div>
   <button class="aibtn" onclick="exportForAI('overview')">&#129504; Export for AI analysis</button>
   <div id="ai-ov-result"></div>
 </div>
@@ -247,12 +264,92 @@ textarea{resize:vertical;min-height:76px}
   <div id="entries-list"><div class="empty">Loading...</div></div>
 </div>
 
+<!-- VOICE LOG FORM -->
+<div class="panel" id="panel-voice">
+  <div style="background:#EAF3DE;border-left:3px solid #639922;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#3B6D11">
+    <strong>People Voice Tracker</strong> &mdash; log positive feedback, suggestions, observations, and employee needs here. This is separate from risk concerns.
+  </div>
+  <div class="fg">
+    <div><label>Employee name</label><input type="text" id="vn" placeholder="Full name"/></div>
+    <div><label>Department</label>
+      <select id="vd">
+        <option value="">Select department</option>
+        <option>Executive</option>
+        <option>DTC &ndash; Telesales</option>
+        <option>DTC &ndash; Chat Sales</option>
+        <option>Branding / General Management</option>
+        <option>Ads &amp; Creative</option>
+        <option>Distribution Channel</option>
+        <option>Logistics</option>
+        <option>HR</option>
+        <option>RND</option>
+        <option>Finance</option>
+        <option>Marketplace</option>
+      </select>
+    </div>
+    <div><label>Position / Role</label><input type="text" id="vr" placeholder="e.g. Team Lead, Associate"/></div>
+    <div><label>Type</label>
+      <select id="vt">
+        <option value="">Select type</option>
+        <option>Positive feedback</option>
+        <option>Suggestion / idea</option>
+        <option>Observation</option>
+        <option>Employee need</option>
+        <option>Shoutout / recognition</option>
+        <option>Process improvement</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div><label>Directed at / About</label><input type="text" id="vab" placeholder="e.g. Management, Team, a Process"/></div>
+    <div><label>How it was raised</label>
+      <select id="vhow">
+        <option value="">Select</option>
+        <option>HTH Talk</option>
+        <option>Walk-in / drop-in</option>
+        <option>1-on-1 check-in</option>
+        <option>Survey / form</option>
+        <option>Team meeting</option>
+        <option>Anonymous feedback</option>
+        <option>Observed by HR</option>
+        <option>Reported by manager</option>
+      </select>
+    </div>
+    <div class="full"><label>What was shared / observed</label>
+      <textarea id="vno" placeholder="Summarize the feedback, suggestion, or observation. Be specific."></textarea>
+    </div>
+    <div><label>Status</label>
+      <select id="vst">
+        <option value="">Select status</option>
+        <option>Noted</option>
+        <option>Shared with leadership</option>
+        <option>Action taken</option>
+        <option>Under review</option>
+        <option>Implemented</option>
+      </select>
+    </div>
+    <div><label>Follow-up / action planned</label><input type="text" id="vac" placeholder="e.g. Shared in team meeting, Escalated to GM"/></div>
+  </div>
+  <button class="savebtn" style="background:#1D9E75" id="vsave-btn" onclick="submitVoice()">Save voice entry</button>
+</div>
+
+<!-- VOICE ENTRIES LIST -->
+<div class="panel" id="panel-voicelist">
+  <div class="frow">
+    <select class="fsel" id="fv-t" onchange="renderVoice()"><option value="">All types</option><option>Positive feedback</option><option>Suggestion / idea</option><option>Observation</option><option>Employee need</option><option>Shoutout / recognition</option><option>Process improvement</option><option>Other</option></select>
+    <select class="fsel" id="fv-d" onchange="renderVoice()"><option value="">All departments</option></select>
+    <select class="fsel" id="fv-s" onchange="renderVoice()"><option value="">All statuses</option><option>Noted</option><option>Shared with leadership</option><option>Action taken</option><option>Under review</option><option>Implemented</option></select>
+    <button class="aibtn" style="margin-top:0;padding:6px 12px;border-color:#1D9E75;color:#1D9E75" onclick="exportVoiceForAI()">&#129504; Export for AI</button>
+  </div>
+  <div id="voice-list"><div class="empty">No voice entries yet.</div></div>
+</div>
+
+
 </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const SHEET_URL='https://script.google.com/macros/s/AKfycbwhVzLRO_88dcFBwUpHktfowFJES_HiP-AX39bP-djUUe9vUSivcF-lsBsqtWpxi30XdQ/exec';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbxzEVKQGKeeJoQxey88QI6ko-rtQfSZDKbcE3DdcnXs64-ovBpKA_706BtLfamFpLLTFw/exec';
 const LS_KEY='tbsi_concerns_v3';
 let entries=[];let selRisk='';let tChart=null;
 const RL={low:'Low',med:'Medium',high:'High',crit:'Critical'};
@@ -269,7 +366,7 @@ function setSyncStatus(state,label){
   document.getElementById('sync-label').textContent=label;
 }
 function sw(name){
-  const tabs=['log','overview','patterns','people','depts','entries'];
+  const tabs=['log','overview','patterns','people','depts','entries','voice','voicelist'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
@@ -278,6 +375,7 @@ function sw(name){
   if(name==='people')renderPeople();
   if(name==='depts')renderDepts();
   if(name==='entries')renderEntries();
+  if(name==='voicelist')renderVoice();
 }
 function selR(lvl,btn){
   selRisk=lvl;
@@ -402,6 +500,58 @@ function renderOverview(){
   const cats=Object.entries(catC).sort((a,b)=>b[1]-a[1]).slice(0,6);
   makeBars(cats,cats[0]?cats[0][1]:1,BC,document.getElementById('ov-cb'));
   renderTrend();
+  renderVoiceSummary();
+}
+function renderVoiceSummary(){
+  const tot=voices.length;
+  document.getElementById('ov-vc').textContent=tot;
+  const pos=voices.filter(e=>e.type==='Positive feedback'||e.type==='Shoutout / recognition').length;
+  const sug=voices.filter(e=>e.type==='Suggestion / idea'||e.type==='Process improvement').length;
+  const need=voices.filter(e=>e.type==='Employee need').length;
+  document.getElementById('ov-vpos').textContent=pos;
+  document.getElementById('ov-vsug').textContent=sug;
+  document.getElementById('ov-vneed').textContent=need;
+
+  const TC={'Positive feedback':'#1D9E75','Suggestion / idea':'#378ADD','Observation':'#BA7517','Employee need':'#7F77DD','Shoutout / recognition':'#639922','Process improvement':'#D4537E','Other':'#5F5E5A'};
+
+  // Type breakdown
+  const typeCounts={};voices.forEach(e=>{typeCounts[e.type]=(typeCounts[e.type]||0)+1;});
+  const typeEl=document.getElementById('ov-vtype');
+  if(!tot){typeEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No voice entries yet</div>';}
+  else{
+    const maxT=Math.max(...Object.values(typeCounts),1);
+    typeEl.innerHTML=Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).map(([t,c])=>
+      '<div class="bar-item"><div class="bar-label"><span style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+t+'</span><span>'+c+'</span></div>'+
+      '<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(c/maxT*100)+'%;background:'+(TC[t]||'#888')+'"></div></div></div>'
+    ).join('');
+  }
+
+  // Dept breakdown
+  const deptCounts={};voices.forEach(e=>{deptCounts[e.dept]=(deptCounts[e.dept]||0)+1;});
+  const deptEl=document.getElementById('ov-vdept');
+  if(!tot){deptEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No voice entries yet</div>';}
+  else{
+    const maxD=Math.max(...Object.values(deptCounts),1);
+    deptEl.innerHTML=Object.entries(deptCounts).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([d,c],i)=>
+      '<div class="bar-item"><div class="bar-label"><span style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+d+'</span><span>'+c+'</span></div>'+
+      '<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(c/maxD*100)+'%;background:'+['#1D9E75','#378ADD','#BA7517','#7F77DD','#639922'][i%5]+'"></div></div></div>'
+    ).join('');
+  }
+
+  // Recent entries
+  const recentEl=document.getElementById('ov-vrecent');
+  if(!tot){recentEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No voice entries yet. Click &quot;+ Log voice&quot; tab to add one.</div>';}
+  else{
+    recentEl.innerHTML=voices.slice(0,3).map(e=>{
+      const color=TC[e.type]||'#888';
+      return '<div style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:flex-start;gap:8px">'+
+        '<span style="background:'+color+'22;color:'+color+';border:1px solid '+color+'44;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;white-space:nowrap;margin-top:2px">'+e.type+'</span>'+
+        '<div><div style="font-size:12px;font-weight:500;color:#111">'+e.name+' <span style="font-weight:400;color:#888">&middot; '+e.dept+'</span></div>'+
+        '<div style="font-size:12px;color:#555;margin-top:2px">'+String(e.notes).substring(0,80)+(String(e.notes).length>80?'...':'')+'</div></div>'+
+      '</div>';
+    }).join('')+
+    (voices.length>3?'<div style="text-align:center;padding:8px 0;font-size:12px;color:#1D9E75">See all '+voices.length+' entries in the Voice entries tab</div>':'');
+  }
 }
 function renderTrend(){
   const mm={};entries.forEach(e=>{const m=String(e.date).substring(0,7);mm[m]=(mm[m]||0)+1;});
@@ -549,9 +699,151 @@ function exportForAI(mode){
   });
 }
 
+
+// ===== PEOPLE VOICE TRACKER =====
+const VLS_KEY='tbsi_voice_v1';
+let voices=[];
+function saveVoiceLocal(){try{localStorage.setItem(VLS_KEY,JSON.stringify(voices));}catch(e){}}
+function loadVoiceLocal(){try{return JSON.parse(localStorage.getItem(VLS_KEY)||'[]');}catch(e){return[];}}
+
+const TYPE_COLORS={
+  'Positive feedback':'#1D9E75',
+  'Suggestion / idea':'#378ADD',
+  'Observation':'#BA7517',
+  'Employee need':'#7F77DD',
+  'Shoutout / recognition':'#639922',
+  'Process improvement':'#D4537E',
+  'Other':'#5F5E5A'
+};
+
+async function submitVoice(){
+  const g=id=>document.getElementById(id).value.trim();
+  const name=g('vn'),dept=g('vd'),role=g('vr'),type=g('vt'),about=g('vab'),how=g('vhow'),notes=g('vno'),status=g('vst'),action=g('vac');
+  if(!name||!dept||!type||!notes){alert('Please fill in: name, department, type, and what was shared.');return;}
+  const entry={id:String(Date.now()),name,dept,role,type,about,how,notes,status,action,date:new Date().toISOString().split('T')[0]};
+  // Save locally first
+  voices.unshift(entry);
+  saveVoiceLocal();
+  // Send to sheet (no-cors, best effort)
+  const url=SHEET_URL
+    +'?sheet=voice&action=save'
+    +'&id='+enc(entry.id)
+    +'&date='+enc(entry.date)
+    +'&name='+enc(entry.name)
+    +'&dept='+enc(entry.dept)
+    +'&role='+enc(entry.role)
+    +'&type='+enc(entry.type)
+    +'&about='+enc(entry.about)
+    +'&how='+enc(entry.how)
+    +'&notes='+enc(entry.notes)
+    +'&status='+enc(entry.status)
+    +'&action2='+enc(entry.action);
+  try{await fetch(url,{mode:'no-cors'});}catch(e){}
+  ['vn','vd','vr','vt','vab','vhow','vno','vst','vac'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('vsave-btn').textContent='Saved!';
+  setTimeout(()=>{document.getElementById('vsave-btn').textContent='Save voice entry';},1500);
+  sw('voicelist');
+}
+
+function deleteVoice(id){
+  if(!confirm('Delete this entry?'))return;
+  voices=voices.filter(e=>String(e.id)!==String(id));
+  saveVoiceLocal();
+  try{fetch(SHEET_URL+'?sheet=voice&action=delete&id='+enc(id),{mode:'no-cors'});}catch(e){}
+  renderVoice();
+  renderVoiceSummary();
+}
+
+function renderVoice(){
+  const tF=document.getElementById('fv-t').value;
+  const dF=document.getElementById('fv-d').value;
+  const sF=document.getElementById('fv-s').value;
+  const depts=[...new Set(voices.map(e=>e.dept))].filter(Boolean);
+  const dSel=document.getElementById('fv-d');const curD=dSel.value;
+  dSel.innerHTML='<option value="">All departments</option>'+depts.map(d=>'<option value="'+d+'"'+(d===curD?' selected':'')+'>'+d+'</option>').join('');
+  const filtered=voices.filter(e=>(!tF||e.type===tF)&&(!dF||e.dept===dF)&&(!sF||e.status===sF));
+  const el=document.getElementById('voice-list');
+  if(!filtered.length){el.innerHTML='<div class="empty">No voice entries match.</div>';return;}
+
+  // Summary cards at top
+  const typeCounts={};voices.forEach(e=>{typeCounts[e.type]=(typeCounts[e.type]||0)+1;});
+  const summaryHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">'+
+    Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).map(([t,c])=>
+      '<span style="background:'+(TYPE_COLORS[t]||'#888')+'22;color:'+(TYPE_COLORS[t]||'#888')+';border:1px solid '+(TYPE_COLORS[t]||'#888')+'44;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500">'+t+': '+c+'</span>'
+    ).join('')+'</div>';
+
+  el.innerHTML=summaryHTML+'<div style="border:1px solid #f0f0f0;border-radius:12px;padding:0 1rem">'+
+    filtered.map(e=>{
+      const color=TYPE_COLORS[e.type]||'#888';
+      return '<div class="erow">'+
+        '<span style="background:'+color+'22;color:'+color+';border:1px solid '+color+'44;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap">'+e.type+'</span>'+
+        '<div>'+
+          '<div class="ename">'+e.name+' <span class="badge binfo" style="font-size:10px">'+e.dept+'</span>'+(e.about?' <span style="font-size:11px;color:#888">re: '+e.about+'</span>':'')+'</div>'+
+          '<div class="emeta">'+(e.role||'')+(e.role&&e.how?' &middot; ':'')+( e.how||'')+'</div>'+
+          '<div class="enotes">'+e.notes+'</div>'+
+          (e.action?'<div style="font-size:11px;color:#888;margin-top:3px">&rarr; '+e.action+'</div>':'')+
+          (e.status?'<div style="font-size:11px;margin-top:3px"><span style="background:'+color+'22;color:'+color+';padding:1px 7px;border-radius:3px;font-size:10px">'+e.status+'</span></div>':'')+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'+
+          '<span style="font-size:11px;color:#aaa">'+e.date+'</span>'+
+          '<button class="delbtn" onclick="deleteVoice(this.dataset.id)" data-id="'+e.id+'" title="Delete">&times;</button>'+
+        '</div>'+
+      '</div>';
+    }).join('')+'</div>';
+}
+
+function exportVoiceForAI(){
+  if(!voices.length){alert('No voice entries yet.');return;}
+  const lines=[];
+  lines.push('=== TBSI PEOPLE VOICE TRACKER — DATA EXPORT ===');
+  lines.push('Date: '+new Date().toLocaleDateString());
+  lines.push('Total voice entries: '+voices.length);
+  lines.push('');
+  const typeCounts={};voices.forEach(e=>{typeCounts[e.type]=(typeCounts[e.type]||0)+1;});
+  lines.push('BY TYPE:');
+  Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>lines.push('  '+k+': '+v));
+  lines.push('');
+  const deptCounts={};voices.forEach(e=>{deptCounts[e.dept]=(deptCounts[e.dept]||0)+1;});
+  lines.push('BY DEPARTMENT:');
+  Object.entries(deptCounts).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>lines.push('  '+k+': '+v));
+  lines.push('');
+  lines.push('--- ALL ENTRIES ---');
+  voices.forEach((e,i)=>{
+    lines.push('');
+    lines.push((i+1)+'. ['+e.type+'] '+e.name+' | '+e.dept+(e.role?' | '+e.role:''));
+    if(e.about)lines.push('   About/Directed at: '+e.about);
+    lines.push('   Date: '+e.date+(e.how?' | Via: '+e.how:'')+(e.status?' | Status: '+e.status:''));
+    lines.push('   Notes: '+e.notes);
+    if(e.action)lines.push('   Action: '+e.action);
+  });
+  lines.push('');
+  lines.push('=== END OF EXPORT ===');
+  lines.push('');
+  lines.push('PROMPT FOR CLAUDE:');
+  lines.push('I am Lyka, HR Officer at Top Bliss Solutions Inc. (TBSI). Based on the voice data above, please:');
+  lines.push('1. What are employees most appreciating or recognizing positively?');
+  lines.push('2. What are the most common suggestions or needs — what do employees want changed or added?');
+  lines.push('3. What patterns in observations tell me about the current culture or environment?');
+  lines.push('4. What should I prioritize acting on or sharing with leadership this week?');
+
+  const text=lines.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    const el=document.getElementById('voice-list');
+    const notice=document.createElement('div');
+    notice.className='ibox ok';
+    notice.style.marginBottom='1rem';
+    notice.innerHTML='<div class="ititle">&#10003; Copied to clipboard!</div><div class="ibody">Paste it into <strong>claude.ai</strong> for a full analysis of your voice data.</div>';
+    el.insertBefore(notice,el.firstChild);
+    setTimeout(()=>notice.remove(),5000);
+  }).catch(()=>{
+    alert('Copy failed. Please manually select and copy from the text area.');
+  });
+}
+
 // INIT — load from local first, then try to sync sheet in background
 function init(){
   entries=loadLocal();
+  voices=loadVoiceLocal();
   if(entries.length>0){
     setSyncStatus('ok',entries.length+' record'+(entries.length!==1?'s':'')+' (local)');
     renderOverview();
