@@ -19,13 +19,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .sync-dot.error{background:#C0392B}
 .sync-label{color:rgba(255,255,255,0.5)}
 .tabs{display:flex;background:#1a1a1a;border-bottom:1px solid rgba(255,255,255,0.08);overflow-x:auto}
-.tab{padding:10px 14px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;gap:5px}
+.tab{padding:10px 14px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:all 0.15s}
 .tab.active{color:#fff;border-bottom-color:#C0392B}
 .tab:hover:not(.active){color:rgba(255,255,255,0.75)}
 .body{background:#fff;border:0.5px solid #e5e5e5;border-top:none;border-radius:0 0 12px 12px;padding:1.25rem}
 .panel{display:none}.panel.active{display:block}
 .metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
-@media(max-width:600px){.metrics-row{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr !important}.rselector{flex-wrap:wrap}}
+@media(max-width:600px){.metrics-row{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr !important}.rselector{flex-wrap:wrap}.fg{grid-template-columns:1fr !important}}
 .mc{background:#f8f8f8;border-radius:8px;padding:14px 16px}
 .mc-label{font-size:11px;color:#666;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
 .mc-val{font-size:26px;font-weight:500;color:#111}
@@ -33,8 +33,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .mc.red .mc-val{color:#C0392B}
 .mc.amb .mc-val{color:#BA7517}
 .card{background:#fff;border:0.5px solid #e5e5e5;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-.ctitle{font-size:11px;font-weight:500;color:#666;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.ctitle svg{color:#C0392B;flex-shrink:0}
+.ctitle{font-size:11px;font-weight:500;color:#666;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 .bar-item{margin-bottom:10px}
 .bar-label{font-size:12px;color:#666;margin-bottom:3px;display:flex;justify-content:space-between}
@@ -45,7 +44,6 @@ input,select,textarea{width:100%;font-family:inherit;font-size:14px;padding:8px 
 input:focus,select:focus,textarea:focus{border-color:#C0392B}
 textarea{resize:vertical;min-height:76px}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-@media(max-width:600px){.fg{grid-template-columns:1fr}}
 .full{grid-column:1/-1}
 .rselector{display:flex;gap:8px}
 .rbtn{flex:1;padding:8px 4px;font-size:11px;font-weight:500;border-radius:8px;cursor:pointer;border:1px solid #ddd;background:#f8f8f8;color:#555;transition:all 0.15s;text-align:center}
@@ -97,11 +95,11 @@ textarea{resize:vertical;min-height:76px}
 <body>
 <div class="app">
 <div class="header">
-  <img src="logo.png" alt="Top Bliss Solutions" onerror="this.style.display='none'" id="tblogo"/>
+  <img src="logo.png" alt="Top Bliss Solutions" onerror="this.style.display='none'"/>
   <div class="hdiv"></div>
   <div class="htxt">
     <div class="ht">People Risk Tracker</div>
-    <div class="hs">Top Bliss Solutions Inc. · HR</div>
+    <div class="hs">Top Bliss Solutions Inc. &middot; HR</div>
   </div>
   <div class="sync-status">
     <div class="sync-dot syncing" id="sync-dot"></div>
@@ -118,7 +116,6 @@ textarea{resize:vertical;min-height:76px}
 </div>
 <div class="body">
 
-<!-- LOG -->
 <div class="panel active" id="panel-log">
   <div id="migrate-notice"></div>
   <div class="fg">
@@ -127,8 +124,8 @@ textarea{resize:vertical;min-height:76px}
       <select id="fd">
         <option value="">Select department</option>
         <option>Executive</option>
-        <option>DTC – Telesales</option>
-        <option>DTC – Chat Sales</option>
+        <option>DTC &#8211; Telesales</option>
+        <option>DTC &#8211; Chat Sales</option>
         <option>Branding / General Management</option>
         <option>Ads &amp; Creative</option>
         <option>Distribution Channel</option>
@@ -144,9 +141,9 @@ textarea{resize:vertical;min-height:76px}
       <select id="ft">
         <option value="">Select</option>
         <option>Less than 6 months</option>
-        <option>6–12 months</option>
-        <option>1–2 years</option>
-        <option>2–5 years</option>
+        <option>6&#8211;12 months</option>
+        <option>1&#8211;2 years</option>
+        <option>2&#8211;5 years</option>
         <option>5+ years</option>
       </select>
     </div>
@@ -185,10 +182,10 @@ textarea{resize:vertical;min-height:76px}
     </div>
     <div class="full"><label>Retention risk level</label>
       <div class="rselector">
-        <button class="rbtn" onclick="selR('low',this)">Low — venting</button>
-        <button class="rbtn" onclick="selR('med',this)">Medium — monitor</button>
-        <button class="rbtn" onclick="selR('high',this)">High — at risk</button>
-        <button class="rbtn" onclick="selR('crit',this)">Critical — resign likely</button>
+        <button class="rbtn" onclick="selR('low',this)">Low &#8212; venting</button>
+        <button class="rbtn" onclick="selR('med',this)">Medium &#8212; monitor</button>
+        <button class="rbtn" onclick="selR('high',this)">High &#8212; at risk</button>
+        <button class="rbtn" onclick="selR('crit',this)">Critical &#8212; resign likely</button>
       </div>
     </div>
     <div><label>Action taken / planned</label><input type="text" id="fa" placeholder="e.g. Referred to manager"/></div>
@@ -197,7 +194,6 @@ textarea{resize:vertical;min-height:76px}
   <button class="savebtn" id="save-btn" onclick="submitEntry()">Save concern entry</button>
 </div>
 
-<!-- OVERVIEW -->
 <div class="panel" id="panel-overview">
   <div class="metrics-row">
     <div class="mc"><div class="mc-label">Total logged</div><div class="mc-val" id="ov-t">0</div><div class="mc-sub">all concerns</div></div>
@@ -217,7 +213,6 @@ textarea{resize:vertical;min-height:76px}
   <div id="ai-ov-result"></div>
 </div>
 
-<!-- PATTERNS -->
 <div class="panel" id="panel-patterns">
   <div class="card"><div class="ctitle">Concern categories</div><div id="pt-cb"></div></div>
   <div class="grid2">
@@ -229,28 +224,25 @@ textarea{resize:vertical;min-height:76px}
   <div id="ai-pt-result"></div>
 </div>
 
-<!-- PEOPLE WATCH -->
 <div class="panel" id="panel-people">
   <div class="card" style="margin-bottom:1rem"><div class="ctitle">Repeat concern flags</div><div id="pw-rep"></div></div>
-  <div class="card"><div class="ctitle">Critical &amp; high risk — watchlist</div><div id="pw-wl"></div></div>
+  <div class="card"><div class="ctitle">Critical &amp; high risk &#8212; watchlist</div><div id="pw-wl"></div></div>
 </div>
 
-<!-- DEPT HEALTH -->
 <div class="panel" id="panel-depts">
   <div class="card"><div class="ctitle">Department health scores</div>
-    <p style="font-size:11px;color:#888;margin-bottom:12px">Weighted risk index — higher = more at-risk</p>
+    <p style="font-size:11px;color:#888;margin-bottom:12px">Weighted risk index &#8212; higher = more at-risk</p>
     <div id="dh-b"></div>
   </div>
   <div class="card"><div class="ctitle">Concerns by dept &times; category</div><div id="dh-t"></div></div>
 </div>
 
-<!-- ALL ENTRIES -->
 <div class="panel" id="panel-entries">
   <div class="frow">
     <select class="fsel" id="fe-r" onchange="renderEntries()"><option value="">All risk levels</option><option value="crit">Critical</option><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select>
     <select class="fsel" id="fe-d" onchange="renderEntries()"><option value="">All departments</option></select>
     <select class="fsel" id="fe-c" onchange="renderEntries()"><option value="">All categories</option></select>
-    <button class="aibtn" style="margin-top:0;padding:6px 12px" onclick="loadFromSheets()">&#8635; Sync from Sheet</button>
+    <button class="aibtn" style="margin-top:0;padding:6px 12px" onclick="loadFromSheets()">&#8635; Sync</button>
   </div>
   <div id="entries-list"><div class="empty">Loading...</div></div>
 </div>
@@ -260,23 +252,17 @@ textarea{resize:vertical;min-height:76px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const SHEET_URL='https://script.google.com/macros/s/AKfycbyHhHBQc3_eRQwNp_55zY8ADRuftvGsTDpToWkUrBBxAA3Nl7bUmQF5YY2Xs52PaPzBRA/exec';
-let entries=[];
-let selRisk='';
-let tChart=null;
+const SHEET_URL='https://script.google.com/macros/s/AKfycbzHU-NbSoRfExPF1Lgr7UVsWtTUBNpPji15LDf5h7Plj9spclefHLOKTLzwyvB2YHD3KA/exec';
+let entries=[];let selRisk='';let tChart=null;
 const RL={low:'Low',med:'Medium',high:'High',crit:'Critical'};
 const RC={low:'#639922',med:'#BA7517',high:'#D85A30',crit:'#C0392B'};
 const BC=['#C0392B','#D85A30','#BA7517','#378ADD','#7F77DD','#1D9E75','#5F5E5A','#639922','#D4537E'];
-
 function rs(r){return{low:1,med:2,high:3,crit:4}[r]||0;}
-
+function enc(v){return encodeURIComponent(v||'');}
 function setSyncStatus(state,label){
-  const dot=document.getElementById('sync-dot');
-  const lbl=document.getElementById('sync-label');
-  dot.className='sync-dot'+(state==='syncing'?' syncing':state==='error'?' error':'');
-  lbl.textContent=label;
+  document.getElementById('sync-dot').className='sync-dot'+(state==='syncing'?' syncing':state==='error'?' error':'');
+  document.getElementById('sync-label').textContent=label;
 }
-
 function sw(name){
   const tabs=['log','overview','patterns','people','depts','entries'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===name));
@@ -288,34 +274,25 @@ function sw(name){
   if(name==='depts')renderDepts();
   if(name==='entries')renderEntries();
 }
-
 function selR(lvl,btn){
   selRisk=lvl;
   document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
   btn.classList.add({low:'sl',med:'sm',high:'sh',crit:'sc'}[lvl]);
 }
-
 async function loadFromSheets(){
   setSyncStatus('syncing','Syncing...');
   try{
     const resp=await fetch(SHEET_URL+'?t='+Date.now());
     const text=await resp.text();
-    let data;
-    try{data=JSON.parse(text);}catch(e){setSyncStatus('error','Invalid response');return false;}
+    let data;try{data=JSON.parse(text);}catch(e){setSyncStatus('error','Invalid response');return false;}
     if(Array.isArray(data)){
       entries=data.map(e=>({...e,id:String(e.id)}));
       setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
-      renderEntries();
-      return true;
+      renderEntries();return true;
     }
-    setSyncStatus('error','Unexpected response');
-    return false;
-  }catch(err){
-    setSyncStatus('error','Sheet unavailable');
-    return false;
-  }
+    setSyncStatus('error','Unexpected response');return false;
+  }catch(err){setSyncStatus('error','Sheet unavailable');return false;}
 }
-
 async function migrateLocalStorage(){
   let local=[];
   try{const v2=localStorage.getItem('tbsi_concerns_v2');const v1=localStorage.getItem('tbsi_concerns');local=JSON.parse(v2||v1||'[]');}catch(e){local=[];}
@@ -324,37 +301,36 @@ async function migrateLocalStorage(){
   notice.innerHTML='<div class="migrate-box"><span>Found <strong>'+local.length+' record(s)</strong> saved locally. Migrate to Google Sheets?</span><button class="migrate-btn" onclick="doMigrate()">Migrate now</button></div>';
   window._localToMigrate=local;
 }
-
 async function doMigrate(){
-  const local=window._localToMigrate||[];
-  if(!local.length)return;
+  const local=window._localToMigrate||[];if(!local.length)return;
   document.getElementById('migrate-notice').innerHTML='<div class="migrate-box"><span>Migrating '+local.length+' records...</span></div>';
   setSyncStatus('syncing','Migrating...');
   let done=0;
   for(const entry of local){
-    try{await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'save',entry}),headers:{'Content-Type':'application/json'}});done++;}catch(e){}
+    try{
+      const url=SHEET_URL+'?action=save&id='+enc(entry.id)+'&date='+enc(entry.date)+'&name='+enc(entry.name)+'&dept='+enc(entry.dept)+'&role='+enc(entry.role)+'&tenure='+enc(entry.tenure)+'&category='+enc(entry.category)+'&source='+enc(entry.source)+'&notes='+enc(entry.notes)+'&risk='+enc(entry.risk)+'&action='+enc(entry.action)+'&followup='+enc(entry.followup);
+      await fetch(url);done++;
+    }catch(e){}
   }
   try{localStorage.removeItem('tbsi_concerns_v2');localStorage.removeItem('tbsi_concerns');}catch(e){}
   document.getElementById('migrate-notice').innerHTML='<div class="ibox ok" style="margin-bottom:1rem"><div class="ititle">Migration complete</div><div class="ibody">'+done+' records moved to Google Sheets.</div></div>';
-  await loadFromSheets();
-  renderOverview();
+  await loadFromSheets();renderOverview();
 }
-
 async function submitEntry(){
   const g=id=>document.getElementById(id).value.trim();
   const name=g('fn'),dept=g('fd'),role=g('fr'),tenure=g('ft'),cat=g('fc'),src=g('fs'),notes=g('fno'),action=g('fa'),fu=g('ff');
   if(!name||!dept||!cat||!selRisk||!notes){alert('Please fill in: name, department, category, notes, and risk level.');return;}
-  const entry={id:Date.now(),name,dept,role,tenure,category:cat,source:src,notes,action,followup:fu,risk:selRisk,date:new Date().toISOString().split('T')[0]};
+  const entry={id:String(Date.now()),name,dept,role,tenure,category:cat,source:src,notes,action:action,followup:fu,risk:selRisk,date:new Date().toISOString().split('T')[0]};
   const btn=document.getElementById('save-btn');
   btn.disabled=true;btn.textContent='Saving...';
   setSyncStatus('syncing','Saving...');
   try{
-    await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'save',entry}),headers:{'Content-Type':'application/json'}});
+    const url=SHEET_URL+'?action=save&id='+enc(entry.id)+'&date='+enc(entry.date)+'&name='+enc(entry.name)+'&dept='+enc(entry.dept)+'&role='+enc(entry.role)+'&tenure='+enc(entry.tenure)+'&category='+enc(entry.category)+'&source='+enc(entry.source)+'&notes='+enc(entry.notes)+'&risk='+enc(entry.risk)+'&action='+enc(entry.action)+'&followup='+enc(entry.followup);
+    await fetch(url);
     entries.unshift(entry);
     setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
     ['fn','fd','fr','ft','fc','fs','fno','fa','ff'].forEach(id=>document.getElementById(id).value='');
-    selRisk='';
-    document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
+    selRisk='';document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('sl','sm','sh','sc'));
     sw('overview');
   }catch(err){
     setSyncStatus('error','Save failed');
@@ -362,23 +338,20 @@ async function submitEntry(){
   }
   btn.disabled=false;btn.textContent='Save concern entry';
 }
-
 async function deleteEntry(id){
   if(!confirm('Delete this entry from Google Sheets?'))return;
   setSyncStatus('syncing','Deleting...');
   try{
-    await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'delete',id:String(id)}),headers:{'Content-Type':'application/json'}});
+    await fetch(SHEET_URL+'?action=delete&id='+enc(id));
     entries=entries.filter(e=>String(e.id)!==String(id));
     setSyncStatus('ok','Synced \u00b7 '+entries.length+' record'+(entries.length!==1?'s':''));
     renderEntries();
   }catch(err){setSyncStatus('error','Delete failed');}
 }
-
 function makeBars(data,maxVal,colors,el){
   if(!data.length){el.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';return;}
-  el.innerHTML=data.map((d,i)=>'<div class="bar-item"><div class="bar-label"><span style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+d[0]+'">'+d[0]+'</span><span>'+d[1]+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(d[1]/maxVal*100)+'%;background:'+colors[i%colors.length]+'"></div></div></div>').join('');
+  el.innerHTML=data.map((d,i)=>'<div class="bar-item"><div class="bar-label"><span style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+d[0]+'</span><span>'+d[1]+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(d[1]/maxVal*100)+'%;background:'+colors[i%colors.length]+'"></div></div></div>').join('');
 }
-
 function renderOverview(){
   const tot=entries.length;
   document.getElementById('ov-t').textContent=tot;
@@ -412,7 +385,6 @@ function renderOverview(){
   makeBars(cats,cats[0]?cats[0][1]:1,BC,document.getElementById('ov-cb'));
   renderTrend();
 }
-
 function renderTrend(){
   const mm={};entries.forEach(e=>{const m=String(e.date).substring(0,7);mm[m]=(mm[m]||0)+1;});
   const months=Object.keys(mm).sort().slice(-6);
@@ -422,7 +394,6 @@ function renderTrend(){
   if(tChart)tChart.destroy();
   tChart=new Chart(ctx,{type:'line',data:{labels:labels.length?labels:['No data'],datasets:[{label:'Concerns',data:data.length?data:[0],borderColor:'#C0392B',backgroundColor:'rgba(192,57,43,0.07)',borderWidth:2,pointBackgroundColor:'#C0392B',pointRadius:4,tension:0.35,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#888'},grid:{color:'rgba(136,135,128,0.12)'}},x:{ticks:{color:'#888'},grid:{display:false}}}}});
 }
-
 function renderPatterns(){
   const catC={};entries.forEach(e=>{catC[e.category]=(catC[e.category]||0)+1;});
   const cats=Object.entries(catC).sort((a,b)=>b[1]-a[1]);
@@ -439,18 +410,16 @@ function renderPatterns(){
   if(!cats2.length){hEl.innerHTML='<div class="empty" style="padding:0.75rem 0">No data yet</div>';return;}
   const hD={};entries.forEach(e=>{const k=e.category+'__'+e.risk;hD[k]=(hD[k]||0)+1;});
   const maxH=Math.max(...Object.values(hD),1);
-  hEl.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed"><tr><td style="width:150px;padding:4px;color:#666"></td>'+risks.map(r=>'<th style="padding:6px 4px;text-align:center;color:#666;font-weight:500">'+RL[r]+'</th>').join('')+'</tr>'+cats2.map(cat=>'<tr><td style="padding:6px 4px;color:#666;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+cat+'">'+cat+'</td>'+risks.map(r=>{const v=hD[cat+'__'+r]||0;const alpha=v>0?0.15+0.7*(v/maxH):0;return '<td style="padding:4px;text-align:center"><div style="background:'+RC[r]+';opacity:'+alpha.toFixed(2)+';border-radius:4px;height:26px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:500;color:#111;opacity:'+(v>0?1:0)+'">'+( v||'')+'</span></div></td>';}).join('')+'</tr>').join('')+'</table></div>';
+  hEl.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed"><tr><td style="width:150px;padding:4px;color:#666"></td>'+risks.map(r=>'<th style="padding:6px 4px;text-align:center;color:#666;font-weight:500">'+RL[r]+'</th>').join('')+'</tr>'+cats2.map(cat=>'<tr><td style="padding:6px 4px;color:#666;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+cat+'</td>'+risks.map(r=>{const v=hD[cat+'__'+r]||0;const alpha=v>0?0.15+0.7*(v/maxH):0;return '<td style="padding:4px;text-align:center"><div style="background:'+RC[r]+';opacity:'+alpha.toFixed(2)+';border-radius:4px;height:26px;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:500;color:#111;opacity:'+(v>0?1:0)+'">'+( v||'')+'</span></div></td>';}).join('')+'</tr>').join('')+'</table></div>';
 }
-
 function renderPeople(){
   const nc={};const nr={};const ne={};
   entries.forEach(e=>{nc[e.name]=(nc[e.name]||0)+1;if(!nr[e.name]||rs(e.risk)>rs(nr[e.name]))nr[e.name]=e.risk;if(!ne[e.name])ne[e.name]=[];ne[e.name].push(e);});
   const reps=Object.entries(nc).filter(([,v])=>v>=2).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('pw-rep').innerHTML=reps.length?reps.map(([name,count])=>{const last=ne[name][0];return '<div class="flagrow"><div><div class="ename">'+name+' <span class="badge bred">'+count+'x logged</span></div><div class="emeta">'+last.dept+(last.role?' &middot; '+last.role:'')+'</div><div style="font-size:11px;color:#888;margin-top:3px">Latest: '+last.category+' \u2014 '+last.date+'</div></div><span class="badge b'+nr[name]+'">'+RL[nr[name]]+'</span></div>';}).join(''):'<div class="empty" style="padding:0.75rem 0">No repeat concerns yet.</div>';
+  document.getElementById('pw-rep').innerHTML=reps.length?reps.map(([name,count])=>{const last=ne[name][0];return '<div class="flagrow"><div><div class="ename">'+name+' <span class="badge bred">'+count+'x logged</span></div><div class="emeta">'+last.dept+(last.role?' &middot; '+last.role:'')+'</div><div style="font-size:11px;color:#888;margin-top:3px">Latest: '+last.category+' &mdash; '+last.date+'</div></div><span class="badge b'+nr[name]+'">'+RL[nr[name]]+'</span></div>';}).join(''):'<div class="empty" style="padding:0.75rem 0">No repeat concerns yet.</div>';
   const wl=entries.filter(e=>e.risk==='high'||e.risk==='crit').sort((a,b)=>rs(b.risk)-rs(a.risk));
-  document.getElementById('pw-wl').innerHTML=wl.length?wl.map(e=>'<div class="flagrow"><div><div class="ename">'+e.name+'</div><div class="emeta">'+e.dept+(e.role?' &middot; '+e.role:'')+(e.tenure?' &middot; '+e.tenure:'')+'</div><div class="enotes">'+e.category+' \u2014 '+String(e.notes).substring(0,90)+(String(e.notes).length>90?'...':'')+'</div>'+(e.followup?'<div style="font-size:11px;color:#888;margin-top:3px">Follow-up: '+e.followup+'</div>':'')+'</div><span class="badge b'+e.risk+'">'+RL[e.risk]+'</span></div>').join(''):'<div class="empty" style="padding:0.75rem 0">No high/critical entries yet.</div>';
+  document.getElementById('pw-wl').innerHTML=wl.length?wl.map(e=>'<div class="flagrow"><div><div class="ename">'+e.name+'</div><div class="emeta">'+e.dept+(e.role?' &middot; '+e.role:'')+(e.tenure?' &middot; '+e.tenure:'')+'</div><div class="enotes">'+e.category+' &mdash; '+String(e.notes).substring(0,90)+(String(e.notes).length>90?'...':'')+'</div>'+(e.followup?'<div style="font-size:11px;color:#888;margin-top:3px">Follow-up: '+e.followup+'</div>':'')+'</div><span class="badge b'+e.risk+'">'+RL[e.risk]+'</span></div>').join(''):'<div class="empty" style="padding:0.75rem 0">No high/critical entries yet.</div>';
 }
-
 function renderDepts(){
   const dd={};entries.forEach(e=>{if(!dd[e.dept])dd[e.dept]={total:0,score:0,cats:{}};dd[e.dept].total++;dd[e.dept].score+=rs(e.risk);dd[e.dept].cats[e.category]=(dd[e.dept].cats[e.category]||0)+1;});
   const depts=Object.entries(dd).sort((a,b)=>(b[1].score/b[1].total)-(a[1].score/a[1].total));
@@ -458,9 +427,8 @@ function renderDepts(){
   const allCats=[...new Set(entries.map(e=>e.category))].slice(0,5);
   const tEl=document.getElementById('dh-t');
   if(!allCats.length){tEl.innerHTML='';return;}
-  tEl.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:auto"><tr><th style="text-align:left;padding:6px 4px;color:#666;font-weight:500;min-width:100px">Dept</th>'+allCats.map(c=>'<th style="padding:6px 4px;color:#666;font-weight:500;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c+'">'+c.split(' ').slice(0,2).join(' ')+'</th>').join('')+'</tr>'+depts.map(([dept,d])=>'<tr style="border-top:1px solid #f0f0f0"><td style="padding:6px 4px;font-size:12px;color:#111">'+dept+'</td>'+allCats.map(c=>{const v=d.cats[c]||0;return '<td style="text-align:center;padding:6px 4px"><span style="color:'+(v>0?'#111':'#ccc')+'">'+(v>0?v:'\u2014')+'</span></td>';}).join('')+'</tr>').join('')+'</table></div>';
+  tEl.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:auto"><tr><th style="text-align:left;padding:6px 4px;color:#666;font-weight:500;min-width:100px">Dept</th>'+allCats.map(c=>'<th style="padding:6px 4px;color:#666;font-weight:500;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.split(' ').slice(0,2).join(' ')+'</th>').join('')+'</tr>'+depts.map(([dept,d])=>'<tr style="border-top:1px solid #f0f0f0"><td style="padding:6px 4px;font-size:12px;color:#111">'+dept+'</td>'+allCats.map(c=>{const v=d.cats[c]||0;return '<td style="text-align:center;padding:6px 4px"><span style="color:'+(v>0?'#111':'#ccc')+'">'+(v>0?v:'&mdash;')+'</span></td>';}).join('')+'</tr>').join('')+'</table></div>';
 }
-
 function renderEntries(){
   const rF=document.getElementById('fe-r').value,dF=document.getElementById('fe-d').value,cF=document.getElementById('fe-c').value;
   const depts=[...new Set(entries.map(e=>e.dept))].filter(Boolean);
@@ -471,10 +439,9 @@ function renderEntries(){
   cSel.innerHTML='<option value="">All categories</option>'+cats.map(c=>'<option value="'+c+'"'+(c===curC?' selected':'')+'>'+c+'</option>').join('');
   const filtered=entries.filter(e=>(!rF||e.risk===rF)&&(!dF||e.dept===dF)&&(!cF||e.category===cF));
   document.getElementById('entries-list').innerHTML=filtered.length
-    ?'<div style="border:1px solid #f0f0f0;border-radius:12px;padding:0 1rem">'+filtered.map(e=>'<div class="erow"><span class="badge b'+e.risk+'">'+RL[e.risk]+'</span><div><div class="ename">'+e.name+' <span class="badge binfo" style="font-size:10px">'+e.dept+'</span></div><div class="emeta">'+(e.role||'')+(e.role&&e.tenure?' &middot; ':'')+( e.tenure||'')+((e.role||e.tenure)&&e.category?' &middot; ':'')+e.category+'</div><div class="enotes">'+e.notes+'</div>'+(e.source?'<div style="font-size:11px;color:#888;margin-top:3px">'+e.source+'</div>':'')+(e.action?'<div style="font-size:11px;color:#888">\u2192 '+e.action+'</div>':'')+(e.followup?'<div style="font-size:11px;color:#888">Follow-up: '+e.followup+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:11px;color:#aaa">'+e.date+'</span><button class="delbtn" onclick="deleteEntry(\''+e.id+'\')" title="Delete">&times;</button></div></div>').join('')+'</div>'
+    ?'<div style="border:1px solid #f0f0f0;border-radius:12px;padding:0 1rem">'+filtered.map(e=>'<div class="erow"><span class="badge b'+e.risk+'">'+RL[e.risk]+'</span><div><div class="ename">'+e.name+' <span class="badge binfo" style="font-size:10px">'+e.dept+'</span></div><div class="emeta">'+(e.role||'')+(e.role&&e.tenure?' &middot; ':'')+(e.tenure||'')+((e.role||e.tenure)&&e.category?' &middot; ':'')+e.category+'</div><div class="enotes">'+e.notes+'</div>'+(e.source?'<div style="font-size:11px;color:#888;margin-top:3px">'+e.source+'</div>':'')+(e.action?'<div style="font-size:11px;color:#888">&rarr; '+e.action+'</div>':'')+(e.followup?'<div style="font-size:11px;color:#888">Follow-up: '+e.followup+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:11px;color:#aaa">'+e.date+'</span><button class="delbtn" onclick="deleteEntry(\''+e.id+'\')" title="Delete">&times;</button></div></div>').join('')+'</div>'
     :'<div class="empty">No entries match the selected filters.</div>';
 }
-
 function buildSummary(){
   const s={total:entries.length,byRisk:{low:0,med:0,high:0,crit:0},byDept:{},byCat:{},byTenure:{},bySource:{},repeats:[],highRiskPeople:[]};
   const nc={};const nr={};
@@ -491,15 +458,13 @@ function buildSummary(){
   s.highRiskPeople=entries.filter(e=>e.risk==='high'||e.risk==='crit').map(e=>({name:e.name,dept:e.dept,risk:RL[e.risk],category:e.category}));
   return s;
 }
-
 async function runAI(mode){
   if(!entries.length){alert('No data logged yet. Add some concern entries first.');return;}
   const btnId=mode==='overview'?'ai-ov-btn':'ai-pt-btn';
   const resId=mode==='overview'?'ai-ov-result':'ai-pt-result';
   const btn=document.getElementById(btnId);
   const resEl=document.getElementById(resId);
-  btn.disabled=true;
-  btn.textContent='Analyzing...';
+  btn.disabled=true;btn.textContent='Analyzing...';
   resEl.innerHTML='<div class="ibox info"><div class="ititle">Generating analysis...</div><div class="ibody">This takes a few seconds.</div></div>';
   const summary=buildSummary();
   const prompt=mode==='overview'
@@ -516,20 +481,16 @@ async function runAI(mode){
   btn.disabled=false;
   btn.textContent=mode==='overview'?'\u{1F9E0} Get AI analysis':'\u2728 Interpret patterns';
 }
-
 async function init(){
   setSyncStatus('syncing','Connecting...');
   const ok=await loadFromSheets();
-  if(ok){
-    renderOverview();
-    await migrateLocalStorage();
-  }else{
+  if(ok){renderOverview();await migrateLocalStorage();}
+  else{
     try{const v2=localStorage.getItem('tbsi_concerns_v2');const v1=localStorage.getItem('tbsi_concerns');entries=JSON.parse(v2||v1||'[]');}catch(e){entries=[];}
     setSyncStatus('error','Sheet unavailable \u2014 using local data');
     renderOverview();
   }
 }
-
 init();
 </script>
 </body>
